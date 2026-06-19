@@ -256,23 +256,31 @@ export const faqItems = [
 export type CommunityItem = {
   id: string;
   url: string;
+  width: number;
+  height: number;
   creator: { name: string; avatar: string };
   likes: number;
 };
 
 export const communityImages: CommunityItem[] = Array.from(
   { length: 20 },
-  (_, i) => ({
-    id: `c-${i + 1}`,
-    url: img(`community-${i + 1}`, 600, 600 + (i % 4) * 100),
-    creator: {
-      name: ["Mai Linh", "Quang Minh", "Hà Trang", "Đức Anh", "Phương Thảo"][
-        i % 5
-      ],
-      avatar: img(`avatar-${i % 5}`, 100, 100),
-    },
-    likes: 24 + (i * 7) % 380,
-  }),
+  (_, i) => {
+    const w = 600;
+    const h = 600 + (i % 4) * 100;
+    return {
+      id: `c-${i + 1}`,
+      url: img(`community-${i + 1}`, w, h),
+      width: w,
+      height: h,
+      creator: {
+        name: ["Mai Linh", "Quang Minh", "Hà Trang", "Đức Anh", "Phương Thảo"][
+          i % 5
+        ],
+        avatar: img(`avatar-${i % 5}`, 100, 100),
+      },
+      likes: 24 + (i * 7) % 380,
+    };
+  },
 );
 
 // ============================================================

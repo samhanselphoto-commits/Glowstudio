@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   PromptInput,
   GenerateButton,
@@ -141,12 +142,14 @@ export default function StudioPage() {
             {REFERENCE_IMAGES.map((url, i) => (
               <div
                 key={i}
-                className="rounded-[8.4px] overflow-hidden border border-mist/10 aspect-square"
+                className="relative rounded-[8.4px] overflow-hidden border border-mist/10 aspect-square"
               >
-                <img
+                <Image
                   src={url}
                   alt={`Tham chiếu ${i + 1}`}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="120px"
+                  className="object-cover"
                 />
               </div>
             ))}
@@ -220,10 +223,12 @@ function GeneratingState({ progress }: { progress: number }) {
   return (
     <div className="h-full flex flex-col items-center justify-center min-h-[360px]">
       <div className="relative w-full max-w-md aspect-square rounded-[8.4px] overflow-hidden bg-obsidian">
-        <img
+        <Image
           src="https://picsum.photos/seed/streaming/600/600"
           alt=""
-          className="w-full h-full object-cover blur-md opacity-60"
+          fill
+          sizes="(max-width: 768px) 80vw, 448px"
+          className="object-cover blur-md opacity-60"
         />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
@@ -247,9 +252,15 @@ function ResultGrid({ results }: { results: { id: string; url: string }[] }) {
       {results.map((r) => (
         <div
           key={r.id}
-          className="relative group rounded-[8.4px] overflow-hidden border border-mist/10"
+          className="relative group rounded-[8.4px] overflow-hidden border border-mist/10 aspect-square"
         >
-          <img src={r.url} alt="" className="w-full h-full object-cover" />
+          <Image
+            src={r.url}
+            alt=""
+            fill
+            sizes="(max-width: 1024px) 40vw, 30vw"
+            className="object-cover"
+          />
           <div className="absolute inset-0 bg-midnight/40 opacity-0 group-hover:opacity-100 transition flex items-end p-3">
             <div className="flex gap-2">
               <button

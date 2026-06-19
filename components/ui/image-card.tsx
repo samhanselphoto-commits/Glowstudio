@@ -1,4 +1,5 @@
 import * as React from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { DownloadIcon, HeartIcon } from "@/components/icons";
 
@@ -45,12 +46,12 @@ export const ImageCard = React.forwardRef<HTMLDivElement, ImageCardProps>(
         )}
         {...props}
       >
-        <img
+        <Image
           src={src}
           alt={alt}
-          loading="lazy"
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className={cn(
-            "block w-full h-full",
             "object-cover",
             "transition duration-300",
             "group-hover:scale-[1.02]",
