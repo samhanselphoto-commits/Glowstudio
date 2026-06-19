@@ -14,17 +14,25 @@
   --color-plasma-pink: #d25fff;
   --color-arc-blue: #33d0ff;
 
-  /* Neutral ramp (3 steps only) */
-  --color-midnight: #000000;
-  --color-obsidian: #0a0a0a;
-  --color-charcoal: #353535;
+  /* New vibrant gradient stops */
+  --color-neon-magenta: #ff3dbf;
+  --color-cyber-cyan: #29f0ff;
+  --color-deep-indigo: #2a1b6e;
+  --color-violet-deep: #4b1f9e;
+  --color-mint-teal: #1ed4a8;
+  --color-sunset-orange: #ff8a3d;
+
+  /* Neutral ramp */
+  --color-midnight: #050216;
+  --color-obsidian: #0a0612;
+  --color-charcoal: #15101e;
 
   /* Text & hairline */
   --color-bone-white: #ffffff;
   --color-fog: #f5f5f5;
   --color-mist: #e5e5e5;
-  --color-ash-text: #999999;
-  --color-charcoal-mute: #666666;
+  --color-ash-text: #b8b0c7;
+  --color-charcoal-mute: #7a7390;
   --color-ink-black: #030303;
 
   /* Font — Inter loaded via next/font/google, exposed as --font-inter in layout */
@@ -56,7 +64,7 @@
 
 :root {
   color-scheme: dark;
-  --background: #000000;
+  --background: #050216;
   --foreground: #ffffff;
 }
 
@@ -74,12 +82,8 @@ body {
 
 /* Toast progress keyframe */
 @keyframes shrink {
-  from {
-    width: 100%;
-  }
-  to {
-    width: 0%;
-  }
+  from { width: 100%; }
+  to { width: 0%; }
 }
 
 @keyframes accordion-down {
@@ -96,7 +100,6 @@ body {
    MOTION — landing page animations
    ============================================================ */
 
-/* Fade up — sections rise into view */
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -108,13 +111,11 @@ body {
   }
 }
 
-/* Fade in — simple opacity */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-/* Scale in — entrance with slight zoom */
 @keyframes scaleIn {
   from {
     opacity: 0;
@@ -126,38 +127,33 @@ body {
   }
 }
 
-/* Float — slow vertical drift for decorative elements */
 @keyframes float {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-12px) rotate(0.5deg); }
 }
 
-/* Float reverse */
 @keyframes floatReverse {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(12px); }
 }
 
-/* Glow pulse — for aurora accent orbs */
 @keyframes glowPulse {
   0%, 100% {
     opacity: 0.4;
     transform: scale(1);
   }
   50% {
-    opacity: 0.7;
-    transform: scale(1.05);
+    opacity: 0.75;
+    transform: scale(1.06);
   }
 }
 
-/* Gradient shift — animated background gradient */
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-/* Aurora gradient text — flowing violet gradient */
 @keyframes auroraText {
   0%, 100% {
     background-position: 0% 50%;
@@ -169,32 +165,74 @@ body {
   }
 }
 
-/* Shimmer — light sweep for buttons */
 @keyframes shimmer {
   0% { transform: translateX(-100%) skewX(-12deg); }
   100% { transform: translateX(200%) skewX(-12deg); }
 }
 
-/* Tilt — subtle 3D transform on hover via group */
 @keyframes tilt {
   0% { transform: perspective(1000px) rotateY(0deg) rotateX(0deg); }
   100% { transform: perspective(1000px) rotateY(-4deg) rotateX(2deg); }
 }
 
-/* Spinner — rotating border for loading/generating states */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Marquee — for brand logos strip if user wants infinite scroll */
 @keyframes marquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 
-/* Slow rotate — for background decorative orbs */
 @keyframes slowRotate {
   from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* NEW: aurora mesh — slow color drift for page background */
+@keyframes auroraMesh {
+  0%, 100% {
+    background-position:
+      0% 0%,
+      100% 0%,
+      50% 100%,
+      0% 50%;
+  }
+  33% {
+    background-position:
+      30% 20%,
+      70% 30%,
+      40% 80%,
+      20% 60%;
+  }
+  66% {
+    background-position:
+      60% 70%,
+      20% 50%,
+      80% 20%,
+      70% 90%;
+  }
+}
+
+/* NEW: conic spin — for hero ring decoration */
+@keyframes conicSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* NEW: ring pulse — expanding glow rings */
+@keyframes ringPulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* NEW: gradient border spin */
+@keyframes borderSpin {
   to { transform: rotate(360deg); }
 }
 
@@ -203,7 +241,6 @@ body {
    ============================================================ */
 
 @layer utilities {
-  /* Entrance — apply with delay-* for stagger */
   .animate-fade-up {
     animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
@@ -214,7 +251,6 @@ body {
     animation: scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  /* Looping motion */
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
@@ -238,8 +274,16 @@ body {
   .animate-marquee {
     animation: marquee 30s linear infinite;
   }
+  .animate-aurora-mesh {
+    animation: auroraMesh 22s ease-in-out infinite;
+  }
+  .animate-conic-spin {
+    animation: conicSpin 18s linear infinite;
+  }
+  .animate-ring-pulse {
+    animation: ringPulse 4s ease-out infinite;
+  }
 
-  /* Stagger delays — for sequential reveal */
   .delay-100 { animation-delay: 100ms; }
   .delay-200 { animation-delay: 200ms; }
   .delay-300 { animation-delay: 300ms; }
@@ -248,7 +292,6 @@ body {
   .delay-700 { animation-delay: 700ms; }
   .delay-1000 { animation-delay: 1000ms; }
 
-  /* Hover 3D tilt — pair with .tilt-container on parent */
   .tilt-container {
     perspective: 1000px;
   }
@@ -260,7 +303,6 @@ body {
     transform: perspective(1000px) rotateY(-4deg) rotateX(2deg) scale(1.02);
   }
 
-  /* Shimmer overlay — pair with relative parent + overflow-hidden */
   .shimmer-on-hover {
     position: relative;
     overflow: hidden;
@@ -272,7 +314,7 @@ body {
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.15),
+      rgba(255, 255, 255, 0.18),
       transparent
     );
     transform: translateX(-100%);
@@ -282,12 +324,14 @@ body {
     animation: shimmer 0.8s ease-out;
   }
 
-  /* Aurora gradient text */
+  /* Multi-stop aurora gradient text — flowing rainbow */
   .text-aurora-gradient {
     background: linear-gradient(
       90deg,
       #7c5cff 0%,
-      #d25fff 50%,
+      #d25fff 25%,
+      #ff3dbf 50%,
+      #29f0ff 75%,
       #7c5cff 100%
     );
     background-size: 200% 200%;
@@ -295,10 +339,136 @@ body {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
+    animation: auroraText 8s ease infinite;
   }
 
-  /* Subtle noise overlay — apply on top of dark surfaces */
-  .bg-noise {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  /* Hero-only mega gradient — bolder stops */
+  .text-aurora-hero {
+    background: linear-gradient(
+      120deg,
+      #ffffff 0%,
+      #d25fff 30%,
+      #ff3dbf 55%,
+      #29f0ff 80%,
+      #ffffff 100%
+    );
+    background-size: 220% 220%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: auroraText 10s ease infinite;
+    filter: drop-shadow(0 0 40px rgba(210, 95, 255, 0.35));
   }
+
+  /* Subtle noise overlay */
+  .bg-noise {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* NEW — Page background: vibrant aurora mesh + grid */
+  .bg-aurora-page {
+    background-color: #050216;
+    background-image:
+      radial-gradient(at 12% 18%, rgba(124, 92, 255, 0.55) 0px, transparent 50%),
+      radial-gradient(at 88% 12%, rgba(255, 61, 191, 0.45) 0px, transparent 55%),
+      radial-gradient(at 78% 82%, rgba(41, 240, 255, 0.35) 0px, transparent 50%),
+      radial-gradient(at 18% 78%, rgba(75, 31, 158, 0.6) 0px, transparent 55%),
+      radial-gradient(at 50% 50%, rgba(210, 95, 255, 0.18) 0px, transparent 60%);
+  }
+
+  /* Auth-style background — softer indigo + magenta */
+  .bg-aurora-auth {
+    background-color: #050216;
+    background-image:
+      radial-gradient(at 20% 20%, rgba(124, 92, 255, 0.55) 0px, transparent 55%),
+      radial-gradient(at 80% 30%, rgba(255, 61, 191, 0.4) 0px, transparent 55%),
+      radial-gradient(at 50% 90%, rgba(41, 240, 255, 0.3) 0px, transparent 50%);
+  }
+
+  /* Section divider — soft gradient line */
+  .divider-aurora {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(124, 92, 255, 0.4) 20%,
+      rgba(255, 61, 191, 0.5) 50%,
+      rgba(41, 240, 255, 0.4) 80%,
+      transparent 100%
+    );
+  }
+
+  /* Card surface — gradient charcoal with subtle hue */
+  .surface-aurora {
+    background:
+      linear-gradient(135deg, rgba(21, 16, 30, 0.85) 0%, rgba(10, 6, 18, 0.95) 100%),
+      radial-gradient(at 0% 0%, rgba(124, 92, 255, 0.12) 0px, transparent 50%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(229, 229, 229, 0.08);
+  }
+
+  /* Gradient hairline border — for cards on dark bg */
+  .border-gradient {
+    position: relative;
+  }
+  .border-gradient::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(124, 92, 255, 0.5),
+      rgba(255, 61, 191, 0.4),
+      rgba(41, 240, 255, 0.5)
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Conic gradient ring — for hero decoration */
+  .conic-ring {
+    background: conic-gradient(
+      from 0deg,
+      rgba(124, 92, 255, 0.6),
+      rgba(255, 61, 191, 0.5),
+      rgba(41, 240, 255, 0.5),
+      rgba(124, 92, 255, 0.6)
+    );
+    filter: blur(60px);
+  }
+
+  /* Glow text shadow — for highlighted words */
+  .glow-violet {
+    text-shadow:
+      0 0 20px rgba(124, 92, 255, 0.5),
+      0 0 40px rgba(124, 92, 255, 0.3);
+  }
+  .glow-magenta {
+    text-shadow:
+      0 0 20px rgba(255, 61, 191, 0.5),
+      0 0 40px rgba(255, 61, 191, 0.3);
+  }
+  .glow-cyan {
+    text-shadow:
+      0 0 20px rgba(41, 240, 255, 0.5),
+      0 0 40px rgba(41, 240, 255, 0.3);
+  }
+
+  /* Pulse rings behind hero mockup */
+  .pulse-ring {
+    position: absolute;
+    border-radius: 9999px;
+    border: 1px solid rgba(124, 92, 255, 0.4);
+  }
+  .pulse-ring-1 { animation: ringPulse 4s ease-out infinite; }
+  .pulse-ring-2 { animation: ringPulse 4s ease-out infinite; animation-delay: 1.3s; }
+  .pulse-ring-3 { animation: ringPulse 4s ease-out infinite; animation-delay: 2.6s; }
 }

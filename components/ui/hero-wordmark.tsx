@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
  * leoSans 165px aurora violet, line-height 0.80. Mobile: 120px.
  * RULE §0 #4: display type line-height ≤ 0.90.
  * RULE §0 #3: leoSans only ≥34px.
+ *
+ * V2 — defaults to aurora-hero (multi-stop rainbow gradient + drop-shadow).
+ * Consumers can pass `className` to override (e.g. plain white).
  */
 export interface HeroWordmarkProps
   extends React.HTMLAttributes<HTMLHeadingElement> {
@@ -21,11 +24,8 @@ export function HeroWordmark({
   return (
     <h1
       className={cn(
-        "font-display",
-        "font-black",
-        "text-aurora-violet",
-        "tracking-[-0.02em]",
-        "leading-[0.8]",
+        "font-display font-black tracking-[-0.04em] leading-[0.8]",
+        "text-aurora-hero",
         size === "default"
           ? "text-[120px] md:text-[165px]"
           : "text-[78px] md:text-[98px]",

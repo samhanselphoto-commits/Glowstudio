@@ -6,6 +6,8 @@ import { SparkleIcon, CheckIcon } from "@/components/icons";
  * §6.22 — Studio Mockup (CSS-only).
  * Mini dashboard cho Hero visual. Không phụ thuộc ảnh ngoài, dùng gradient + shapes.
  * Layout: top bar + 3-column (tools | canvas | params).
+ *
+ * V2 — gradient hairline border, chrome bar with brand wordmark, brighter tiles.
  */
 export interface StudioMockupProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -29,12 +31,12 @@ const PARAMS: { label: string; value: string }[] = [
   { label: "Guidance", value: "7.5" },
 ];
 
-/** Result tile — gradient + subtle shape variations */
+/** Result tile — bolder gradient + shape variations */
 const RESULT_GRADIENTS = [
-  "from-aurora-violet/40 via-shock-pink/20 to-arc-blue/30",
-  "from-toxic-lime/30 via-aurora-violet/20 to-plasma-pink/30",
-  "from-ember-coral/30 via-voltage-yellow/20 to-aurora-violet/30",
-  "from-arc-blue/30 via-plasma-pink/20 to-toxic-lime/30",
+  "from-aurora-violet/70 via-shock-pink/50 to-arc-blue/60",
+  "from-toxic-lime/50 via-aurora-violet/40 to-plasma-pink/60",
+  "from-ember-coral/50 via-voltage-yellow/40 to-aurora-violet/60",
+  "from-arc-blue/60 via-plasma-pink/50 to-toxic-lime/50",
 ] as const;
 
 export function StudioMockup({ className, ...props }: StudioMockupProps) {
@@ -42,34 +44,45 @@ export function StudioMockup({ className, ...props }: StudioMockupProps) {
     <div
       className={cn(
         "relative rounded-[16px] overflow-hidden",
-        "bg-obsidian border border-mist/10",
-        "shadow-[0_30px_80px_-20px_rgba(124,92,255,0.4),0_10px_30px_rgba(0,0,0,0.6)]",
+        "bg-gradient-to-br from-obsidian via-charcoal to-obsidian",
+        "border border-aurora-violet/30",
+        "shadow-[0_30px_80px_-20px_rgba(124,92,255,0.6),0_10px_30px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.05)]",
         className,
       )}
       {...props}
     >
+      {/* Gradient hairline on top edge */}
+      <div
+        aria-hidden
+        className="absolute top-0 left-0 right-0 h-px pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, rgba(124,92,255,0.6) 30%, rgba(255,61,191,0.6) 70%, transparent)",
+        }}
+      />
+
       {/* Top bar — window chrome */}
-      <div className="h-7 bg-charcoal/80 border-b border-mist/10 flex items-center px-3 gap-1.5">
-        <span className="w-2.5 h-2.5 rounded-full bg-ember-coral/70" />
-        <span className="w-2.5 h-2.5 rounded-full bg-voltage-yellow/70" />
-        <span className="w-2.5 h-2.5 rounded-full bg-toxic-lime/70" />
-        <span className="ml-3 text-[10px] font-medium text-ash-text tracking-wider">
-          GLOWSTUDIO · STUDIO
+      <div className="h-7 bg-gradient-to-r from-charcoal/90 to-obsidian/90 border-b border-mist/10 flex items-center px-3 gap-1.5">
+        <span className="w-2.5 h-2.5 rounded-full bg-ember-coral/80" />
+        <span className="w-2.5 h-2.5 rounded-full bg-voltage-yellow/80" />
+        <span className="w-2.5 h-2.5 rounded-full bg-toxic-lime/80" />
+        <span className="ml-3 text-[10px] font-bold text-aurora-gradient tracking-wider">
+          GLOWSTUDIO
         </span>
       </div>
 
       {/* Body — 3 columns */}
       <div className="grid grid-cols-[60px_1fr_120px] h-[300px] md:h-[360px]">
         {/* LEFT — tools */}
-        <div className="border-r border-mist/10 p-2 flex flex-col gap-1.5 bg-midnight/30">
+        <div className="border-r border-mist/10 p-2 flex flex-col gap-1.5 bg-midnight/40">
           {TOOLS.map((t) => (
             <div
               key={t.label}
               className={cn(
-                "rounded-md px-1.5 py-1.5 text-[8px] font-medium text-center",
+                "rounded-md px-1.5 py-1.5 text-[8px] font-medium text-center transition",
                 t.active
-                  ? "bg-aurora-soft text-aurora-violet border border-aurora-violet/50"
-                  : "text-ash-text/70",
+                  ? "bg-gradient-to-br from-aurora-violet/30 to-neon-magenta/20 text-aurora-violet border border-aurora-violet/50 shadow-[0_0_12px_rgba(124,92,255,0.3)]"
+                  : "text-ash-text/70 hover:text-bone-white",
               )}
             >
               {t.label}
@@ -80,7 +93,7 @@ export function StudioMockup({ className, ...props }: StudioMockupProps) {
         {/* CENTER — canvas */}
         <div className="p-2.5 flex flex-col gap-2">
           {/* Prompt input */}
-          <div className="rounded-md bg-charcoal/60 border border-mist/10 px-2.5 py-1.5 flex items-center justify-between">
+          <div className="rounded-md bg-gradient-to-r from-charcoal/70 to-obsidian/70 border border-mist/10 px-2.5 py-1.5 flex items-center justify-between">
             <span className="text-[9px] text-ash-text truncate">
               Lookbook áo dài minimalist, ánh sáng studio mềm...
             </span>
@@ -103,7 +116,7 @@ export function StudioMockup({ className, ...props }: StudioMockupProps) {
             </div>
           </div>
 
-          {/* Result grid — 4 gradient tiles */}
+          {/* Result grid — 4 gradient tiles with glow */}
           <div className="grid grid-cols-2 gap-1.5 flex-1">
             {RESULT_GRADIENTS.map((g, i) => (
               <div
@@ -112,13 +125,14 @@ export function StudioMockup({ className, ...props }: StudioMockupProps) {
                   "relative rounded-[6px] overflow-hidden bg-gradient-to-br",
                   g,
                   "border border-mist/10",
+                  "shadow-[inset_0_0_20px_rgba(255,255,255,0.06)]",
                 )}
               >
                 {/* Floating sparkle decoration */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <SparkleIcon
                     className={cn(
-                      "w-3.5 h-3.5 text-bone-white/60",
+                      "w-3.5 h-3.5 text-bone-white/80",
                       i % 2 === 0 ? "animate-float" : "animate-float-reverse",
                     )}
                   />
@@ -131,8 +145,8 @@ export function StudioMockup({ className, ...props }: StudioMockupProps) {
         </div>
 
         {/* RIGHT — params */}
-        <div className="border-l border-mist/10 p-2 flex flex-col gap-1 bg-midnight/30">
-          <span className="text-[8px] font-bold text-charcoal-mute uppercase tracking-wider mb-0.5">
+        <div className="border-l border-mist/10 p-2 flex flex-col gap-1 bg-midnight/40">
+          <span className="text-[8px] font-bold text-aurora-violet uppercase tracking-wider mb-0.5">
             Params
           </span>
           {PARAMS.map((p) => (

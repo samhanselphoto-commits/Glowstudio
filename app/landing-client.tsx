@@ -101,6 +101,11 @@ export function LandingClient({
         </div>
       </section>
 
+      {/* Section divider */}
+      <div className="max-w-[1440px] mx-auto px-6 md:px-10 mt-20">
+        <div className="divider-aurora" />
+      </div>
+
       {/* FEATURES — alternating text + image blocks with 3D tilt */}
       <section className="max-w-[1440px] mx-auto px-6 md:px-10 mt-20">
         <div
@@ -113,10 +118,15 @@ export function LandingClient({
           )}
         >
           <SectionHeadline
-            title="Mọi thứ bạn cần"
-            subtitle="Từ tạo ảnh đơn lẻ đến cả set brand kit — Glowstudio xử lý hết, không cần chuyển tab."
             align="center"
             size="lg"
+            heading={
+              <>
+                Mọi thứ bạn{" "}
+                <span className="text-aurora-gradient">cần</span>
+              </>
+            }
+            subtitle="Từ tạo ảnh đơn lẻ đến cả set brand kit — Glowstudio xử lý hết, không cần chuyển tab."
           />
         </div>
 
@@ -144,7 +154,7 @@ export function LandingClient({
                     transitionDelay: `${i * 150}ms`,
                   }}
                 >
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-[8.4px] bg-aurora-soft border border-aurora-violet/30">
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-[8.4px] bg-gradient-to-br from-aurora-violet/20 via-neon-magenta/15 to-cyber-cyan/20 border border-aurora-violet/40 shadow-[0_0_30px_rgba(124,92,255,0.25)]">
                     <Icon className="w-7 h-7 text-aurora-violet" />
                   </div>
                   <h3 className="font-display text-[34px] md:text-[44px] leading-[0.9] tracking-[-0.02em] font-extrabold text-bone-white mt-5">
@@ -159,7 +169,9 @@ export function LandingClient({
                         key={b}
                         className="flex items-start gap-3 text-sm text-bone-white"
                       >
-                        <CheckIcon className="w-4 h-4 text-toxic-lime flex-shrink-0 mt-1" />
+                        <span className="mt-1 flex-shrink-0 w-4 h-4 rounded-full bg-toxic-lime/15 border border-toxic-lime/40 flex items-center justify-center">
+                          <CheckIcon className="w-2.5 h-2.5 text-toxic-lime" />
+                        </span>
                         <span>{b}</span>
                       </li>
                     ))}
@@ -188,6 +200,7 @@ export function LandingClient({
                           "relative rounded-[8.4px] overflow-hidden bg-charcoal border border-mist/10",
                           "aspect-square",
                           "transition-transform duration-500 hover:scale-[1.03]",
+                          "hover:shadow-[0_0_30px_rgba(124,92,255,0.35)] hover:border-aurora-violet/40",
                           idx === 0 && "row-span-2",
                         )}
                       >
@@ -210,6 +223,11 @@ export function LandingClient({
         </div>
       </section>
 
+      {/* Section divider */}
+      <div className="max-w-[1440px] mx-auto px-6 md:px-10 mt-20">
+        <div className="divider-aurora" />
+      </div>
+
       {/* PRICING PREVIEW */}
       <section
         ref={pricingReveal.ref}
@@ -221,16 +239,21 @@ export function LandingClient({
         )}
       >
         <SectionHeadline
-          title="Bảng giá đơn giản"
-          subtitle="Bắt đầu miễn phí, nâng cấp khi cần. Không có phí ẩn."
           align="center"
           size="lg"
+          heading={
+            <>
+              Bảng giá{" "}
+              <span className="text-aurora-gradient">đơn giản</span>
+            </>
+          }
+          subtitle="Bắt đầu miễn phí, nâng cấp khi cần. Không có phí ẩn."
         />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mt-16">
           {plans.map((plan, i) => (
             <div
               key={plan.id}
-              className="transition-all duration-700 hover:-translate-y-1"
+              className="transition-all duration-700 hover:-translate-y-2"
               style={{
                 transitionDelay: pricingReveal.visible ? `${i * 100}ms` : "0ms",
                 opacity: pricingReveal.visible ? 1 : 0,
@@ -253,6 +276,11 @@ export function LandingClient({
         </div>
       </section>
 
+      {/* Section divider */}
+      <div className="max-w-[1440px] mx-auto px-6 md:px-10 mt-20">
+        <div className="divider-aurora" />
+      </div>
+
       {/* FAQ */}
       <section
         ref={faqReveal.ref}
@@ -263,15 +291,24 @@ export function LandingClient({
             : "opacity-0 translate-y-12",
         )}
       >
-        <SectionHeadline title="Câu hỏi thường gặp" size="lg" />
-        <ul className="mt-10 flex flex-col gap-2.5">
+        <SectionHeadline
+          align="center"
+          size="lg"
+          heading={
+            <>
+              Câu hỏi{" "}
+              <span className="text-aurora-gradient">thường gặp</span>
+            </>
+          }
+        />
+        <ul className="mt-10 flex flex-col gap-3">
           {faqItems.map((item, i) => {
             const open = openFaq === i;
             return (
               <li
                 key={i}
                 className={cn(
-                  "rounded-[8.4px] border border-mist/10 bg-charcoal overflow-hidden",
+                  "rounded-[8.4px] surface-aurora overflow-hidden",
                   "transition-all duration-300 hover:border-aurora-violet/50",
                 )}
                 style={{

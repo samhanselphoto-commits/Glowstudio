@@ -23,23 +23,25 @@ const FILTER_TABS = ["Tất cả", "Lookbook", "Sản phẩm", "Social", "Concep
 export default function LandingPage() {
   return (
     <main className="min-h-screen bg-midnight relative overflow-hidden">
-      {/* Background — animated gradient orbs + noise overlay */}
+      {/* Background — vibrant aurora mesh + animated orbs */}
       <BackgroundDecor />
 
       <div className="relative z-10">
         <NavBar />
 
-        {/* HERO — 2 col: text + studio mockup with 3D tilt */}
+        {/* HERO — 2 col: text + studio mockup with pulse rings */}
         <section className="max-w-[1440px] mx-auto px-6 md:px-10 py-20 md:py-32">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div className="text-center lg:text-left">
               <div className="animate-fade-up">
-                <HeroWordmark size="sm" className="text-aurora-gradient">
+                <HeroWordmark size="sm" className="text-aurora-hero">
                   GLOWSTUDIO
                 </HeroWordmark>
               </div>
               <h2 className="font-display text-[34px] md:text-[48px] leading-[0.9] tracking-[-0.02em] font-extrabold text-bone-white mt-10 animate-fade-up delay-200">
-                Nền tảng AI tạo ảnh cho designer &amp; marketer
+                Nền tảng AI tạo ảnh{" "}
+                <span className="text-aurora-gradient">cho designer</span>{" "}
+                <span className="text-aurora-gradient">&amp; marketer</span>
               </h2>
               <p className="text-base md:text-lg text-ash-text mt-6 max-w-2xl lg:max-w-none mx-auto lg:mx-0 animate-fade-up delay-300">
                 Tạo ảnh chuyên nghiệp với GPT Image, NANO BANANA và Zturbo. Style
@@ -51,30 +53,59 @@ export default function LandingPage() {
                 </ButtonPrimary>
                 <ButtonGhost size="lg">Xem demo</ButtonGhost>
               </div>
+
+              {/* Tiny trust line */}
+              <p className="text-xs text-charcoal-mute mt-6 animate-fade-up delay-500">
+                50 credits miễn phí · Không cần thẻ · Hủy bất kỳ lúc nào
+              </p>
             </div>
 
-            {/* Studio mockup with 3D tilt + parallax-ready container */}
-            <div className="tilt-container animate-scale-in delay-500">
-              {/* Floating glow behind mockup */}
+            {/* Studio mockup with pulse rings + conic glow */}
+            <div className="tilt-container relative animate-scale-in delay-500">
+              {/* Conic gradient glow behind mockup */}
               <div
                 aria-hidden
-                className="absolute -inset-10 bg-aurora-soft blur-3xl rounded-full opacity-50 animate-glow-pulse pointer-events-none"
+                className="absolute -inset-20 conic-ring opacity-70 animate-conic-spin pointer-events-none"
               />
+              {/* Soft inner glow */}
+              <div
+                aria-hidden
+                className="absolute -inset-10 bg-aurora-soft blur-3xl rounded-full opacity-60 animate-glow-pulse pointer-events-none"
+              />
+              {/* Pulse rings */}
+              <div
+                aria-hidden
+                className="pulse-ring pulse-ring-1 -inset-8 pointer-events-none"
+              />
+              <div
+                aria-hidden
+                className="pulse-ring pulse-ring-2 -inset-16 pointer-events-none"
+              />
+              <div
+                aria-hidden
+                className="pulse-ring pulse-ring-3 -inset-24 pointer-events-none"
+              />
+
               <div className="relative animate-float">
                 <StudioMockup />
               </div>
               {/* Decorative floating orbs */}
               <div
                 aria-hidden
-                className="absolute -top-6 -right-6 w-12 h-12 rounded-full bg-aurora-violet/30 blur-xl animate-float"
+                className="absolute -top-6 -right-6 w-12 h-12 rounded-full bg-neon-magenta/40 blur-xl animate-float"
               />
               <div
                 aria-hidden
-                className="absolute -bottom-4 -left-4 w-10 h-10 rounded-full bg-arc-blue/30 blur-xl animate-float-reverse"
+                className="absolute -bottom-4 -left-4 w-10 h-10 rounded-full bg-cyber-cyan/40 blur-xl animate-float-reverse"
               />
             </div>
           </div>
         </section>
+
+        {/* Section divider */}
+        <div className="max-w-[1440px] mx-auto px-6 md:px-10">
+          <div className="divider-aurora" />
+        </div>
 
         {/* SOCIAL PROOF — 6 brand name placeholders */}
         <section className="max-w-[1440px] mx-auto px-6 md:px-10 mt-20">
@@ -94,13 +125,18 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* STATS BAR — 4 KPIs */}
+        {/* STATS BAR — 4 KPIs with gradient surface */}
         <section className="max-w-[1440px] mx-auto px-6 md:px-10 mt-20">
-          <div className="relative rounded-[20px] bg-charcoal border border-mist/10 p-10 md:p-12 grid grid-cols-2 md:grid-cols-4 gap-8 overflow-hidden animate-fade-up delay-200">
-            {/* Aurora glow accent */}
+          <div className="relative rounded-[20px] surface-aurora p-10 md:p-12 grid grid-cols-2 md:grid-cols-4 gap-8 overflow-hidden animate-fade-up delay-200">
+            {/* Aurora glow accents */}
             <div
               aria-hidden
               className="absolute -top-20 -left-20 w-60 h-60 rounded-full bg-aurora-soft blur-3xl pointer-events-none animate-glow-pulse"
+            />
+            <div
+              aria-hidden
+              className="absolute -bottom-20 -right-20 w-60 h-60 rounded-full bg-neon-magenta/15 blur-3xl pointer-events-none animate-glow-pulse"
+              style={{ animationDelay: "2s" }}
             />
             {stats.map((s, i) => (
               <div
@@ -108,8 +144,8 @@ export default function LandingPage() {
                 className="text-center relative animate-fade-up"
                 style={{ animationDelay: `${300 + i * 100}ms` }}
               >
-                <p className="font-display text-[44px] md:text-[58px] leading-[0.9] font-extrabold text-bone-white tracking-[-0.02em]">
-                  {s.value}
+                <p className="font-display text-[44px] md:text-[58px] leading-[0.9] font-extrabold tracking-[-0.02em]">
+                  <span className="text-aurora-gradient">{s.value}</span>
                 </p>
                 <p className="text-sm text-ash-text mt-3">{s.label}</p>
               </div>
@@ -117,7 +153,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* GALLERY HERO SHOWCASE — 8 ảnh edge-to-edge */}
+        {/* GALLERY HERO SHOWCASE */}
         <section className="max-w-[1440px] mx-auto px-6 md:px-10 mt-20">
           <ImageGalleryGrid items={galleryShowcase} />
         </section>
@@ -133,16 +169,20 @@ export default function LandingPage() {
 
         {/* CLOSING CTA — final push trước footer */}
         <section className="max-w-[1440px] mx-auto px-6 md:px-10 mt-20">
-          <div className="relative rounded-[20px] bg-obsidian border border-mist/10 p-12 md:p-20 text-center overflow-hidden animate-fade-up">
+          <div className="relative rounded-[20px] surface-aurora p-12 md:p-20 text-center overflow-hidden animate-fade-up">
             {/* Animated aurora glow orbs */}
             <div
               aria-hidden
-              className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-aurora-soft blur-3xl pointer-events-none animate-glow-pulse"
+              className="absolute -top-32 -right-20 w-96 h-96 rounded-full bg-aurora-violet/30 blur-3xl pointer-events-none animate-glow-pulse"
             />
             <div
               aria-hidden
-              className="absolute -bottom-32 -left-20 w-80 h-80 rounded-full bg-aurora-violet/15 blur-3xl pointer-events-none animate-glow-pulse"
+              className="absolute -bottom-32 -left-20 w-80 h-80 rounded-full bg-neon-magenta/25 blur-3xl pointer-events-none animate-glow-pulse"
               style={{ animationDelay: "2s" }}
+            />
+            <div
+              aria-hidden
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] conic-ring opacity-40 animate-conic-spin pointer-events-none"
             />
             {/* Subtle grid pattern overlay */}
             <div
@@ -155,8 +195,9 @@ export default function LandingPage() {
               }}
             />
             <div className="relative">
-              <h2 className="font-display text-[44px] md:text-[78px] leading-[0.85] tracking-[-0.02em] font-extrabold text-bone-white">
-                Sẵn sàng tạo ảnh chuyên nghiệp?
+              <h2 className="font-display text-[44px] md:text-[78px] leading-[0.85] tracking-[-0.02em] font-extrabold">
+                <span className="text-bone-white">Sẵn sàng tạo ảnh </span>
+                <span className="text-aurora-gradient">chuyên nghiệp?</span>
               </h2>
               <p className="text-base md:text-lg text-ash-text mt-6 max-w-2xl mx-auto">
                 50 credits miễn phí, không cần thẻ. Bắt đầu trong 30 giây.
@@ -177,30 +218,67 @@ export default function LandingPage() {
   );
 }
 
-/** Animated background — gradient orbs + noise overlay. */
+/** Animated background — vibrant aurora mesh + orbs + grid + noise. */
 function BackgroundDecor() {
   return (
     <div
       aria-hidden
       className="absolute inset-0 pointer-events-none overflow-hidden"
     >
-      {/* Aurora orb 1 — top-left, slow drift */}
+      {/* Aurora mesh gradient — main colorful backdrop */}
       <div
-        className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-aurora-violet/10 blur-[120px] animate-float"
+        className="absolute inset-0 bg-aurora-page animate-aurora-mesh"
+        style={{ backgroundSize: "120% 120%" }}
+      />
+
+      {/* Aurora orbs — extra color punch */}
+      <div
+        className="absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full bg-aurora-violet/30 blur-[140px] animate-float"
         style={{ animationDuration: "12s" }}
       />
-      {/* Aurora orb 2 — center-right, opposite drift */}
       <div
-        className="absolute top-1/3 -right-40 w-[500px] h-[500px] rounded-full bg-plasma-pink/8 blur-[120px] animate-float-reverse"
+        className="absolute top-1/4 -right-40 w-[600px] h-[600px] rounded-full bg-neon-magenta/25 blur-[140px] animate-float-reverse"
         style={{ animationDuration: "14s" }}
       />
-      {/* Aurora orb 3 — bottom-left, deep */}
       <div
-        className="absolute -bottom-40 left-1/3 w-[400px] h-[400px] rounded-full bg-arc-blue/8 blur-[120px] animate-float"
+        className="absolute -bottom-40 left-1/3 w-[500px] h-[500px] rounded-full bg-cyber-cyan/20 blur-[140px] animate-float"
         style={{ animationDuration: "16s" }}
       />
-      {/* Noise texture overlay — subtle film grain */}
-      <div className="absolute inset-0 bg-noise opacity-50" />
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-plasma-pink/10 blur-[160px] animate-glow-pulse"
+      />
+
+      {/* Subtle grid overlay for techy feel */}
+      <div
+        className="absolute inset-0 opacity-[0.05] pointer-events-none"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+          maskImage:
+            "radial-gradient(ellipse at center, black 30%, transparent 80%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse at center, black 30%, transparent 80%)",
+        }}
+      />
+
+      {/* Noise texture overlay */}
+      <div className="absolute inset-0 bg-noise opacity-60" />
+
+      {/* Top + bottom vignette to focus center */}
+      <div
+        className="absolute inset-x-0 top-0 h-40 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(5,2,22,0.6), transparent)",
+        }}
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 h-40 pointer-events-none"
+        style={{
+          background: "linear-gradient(to top, rgba(5,2,22,0.6), transparent)",
+        }}
+      />
     </div>
   );
 }

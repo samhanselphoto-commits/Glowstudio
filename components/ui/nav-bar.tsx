@@ -13,13 +13,13 @@ import { NAV_LINKS } from "@/lib/constants";
  *   [Logo + G-mark] [Center nav links] [EN + Auth CTA]
  *
  * States:
- *   - Top: bg-transparent, h-20
- *   - Scrolled: bg-obsidian/60 backdrop-blur-xl, h-16, border-b
+ *   - Top: subtle dark tint với gradient hint, h-20
+ *   - Scrolled: glassmorphism bg-obsidian/70 backdrop-blur-xl, h-16, gradient border dưới
  *
  * Effects:
  *   - Aurora gradient border dưới nav (chỉ khi scrolled)
  *   - Aurora underline animation on nav link hover
- *   - Scroll progress bar ở dưới cùng
+ *   - Scroll progress bar ở dưới cùng (gradient violet → magenta → cyan)
  *   - Logo mark có gradient border
  */
 export interface NavBarProps
@@ -36,7 +36,6 @@ export const NavBar = React.forwardRef<HTMLElement, NavBarProps>(
       const onScroll = () => {
         const y = window.scrollY;
         setScrolled(y > 8);
-        // Progress: 0 (top) → 1 (1 viewport down)
         const max = window.innerHeight;
         setScrollProgress(Math.min(y / max, 1));
       };
@@ -53,8 +52,8 @@ export const NavBar = React.forwardRef<HTMLElement, NavBarProps>(
           "sticky top-0 z-50",
           "transition-[height,background-color,backdrop-filter] duration-300",
           scrolled
-            ? "h-16 bg-obsidian/70 backdrop-blur-xl border-b border-mist/10"
-            : "h-20 bg-transparent border-b border-transparent",
+            ? "h-16 bg-obsidian/70 backdrop-blur-xl border-b border-aurora-violet/20"
+            : "h-20 bg-gradient-to-b from-midnight/80 to-transparent border-b border-transparent backdrop-blur-sm",
           className,
         )}
         {...props}
@@ -121,6 +120,18 @@ export const NavBar = React.forwardRef<HTMLElement, NavBarProps>(
             )}
           </div>
         </div>
+
+        {/* Aurora gradient border under nav when scrolled */}
+        {scrolled && (
+          <div
+            aria-hidden
+            className="absolute left-0 right-0 bottom-0 h-px pointer-events-none"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(124,92,255,0.6) 25%, rgba(255,61,191,0.6) 50%, rgba(41,240,255,0.6) 75%, transparent 100%)",
+            }}
+          />
+        )}
 
         {/* Scroll progress bar */}
         <div className="absolute left-0 right-0 bottom-0 h-[2px] pointer-events-none">

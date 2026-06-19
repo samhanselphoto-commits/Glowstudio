@@ -7,7 +7,7 @@ import type { Plan } from "@/lib/mock-data";
 
 /**
  * Pricing Card — used by Landing preview và /pricing page.
- * 20px radius, charcoal surface. Popular = aurora violet border + glow.
+ * surface-aurora gradient surface, popular = gradient hairline border + glow.
  */
 export interface PricingCardProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -20,19 +20,16 @@ export function PricingCard({ plan, className, ...props }: PricingCardProps) {
   return (
     <div
       className={cn(
-        "rounded-[20px]",
-        "bg-charcoal",
-        "border p-7",
-        "flex flex-col",
-        plan.popular
-          ? "border-aurora-violet shadow-[0_0_24px_rgba(124,92,255,0.45)]"
-          : "border-mist/10",
+        "relative rounded-[20px] surface-aurora p-7 flex flex-col h-full",
+        "transition-all duration-300 hover:-translate-y-1",
+        plan.popular &&
+          "border-gradient shadow-[0_20px_60px_-15px_rgba(124,92,255,0.4)] hover:shadow-[0_25px_70px_-15px_rgba(124,92,255,0.55)]",
         className,
       )}
       {...props}
     >
       {plan.popular && (
-        <span className="self-start rounded-full bg-aurora-violet text-bone-white text-xs font-bold px-3 py-1 mb-4">
+        <span className="self-start rounded-full bg-gradient-to-r from-aurora-violet via-neon-magenta to-cyber-cyan text-bone-white text-xs font-bold px-3 py-1 mb-4 shadow-[0_0_18px_rgba(124,92,255,0.5)]">
           {plan.tag}
         </span>
       )}
@@ -46,7 +43,8 @@ export function PricingCard({ plan, className, ...props }: PricingCardProps) {
 
       <p
         className={cn(
-          "font-display text-[44px] leading-[0.9] font-extrabold text-bone-white mt-6",
+          "font-display text-[44px] leading-[0.9] font-extrabold mt-6",
+          plan.popular ? "text-aurora-gradient" : "text-bone-white",
         )}
       >
         {isCustomPrice ? "Liên hệ" : plan.price === 0 ? "0đ" : formatVND(plan.price)}

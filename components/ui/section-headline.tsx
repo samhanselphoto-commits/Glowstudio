@@ -5,11 +5,13 @@ import { cn } from "@/lib/utils";
  * §6.9 — Section Headline.
  * leoSans 44-78px white, line-height 0.85-0.90, tracking -0.02em.
  * Plus ash-text subheadline.
+ *
+ * Uses `heading` (not `title`) so it composes cleanly with HTMLAttributes.
  */
 export interface SectionHeadlineProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  title: string;
-  subtitle?: string;
+  heading: React.ReactNode;
+  subtitle?: React.ReactNode;
   align?: "left" | "center";
   size?: "sm" | "md" | "lg";
 }
@@ -22,7 +24,7 @@ const sizeMap = {
 
 export function SectionHeadline({
   className,
-  title,
+  heading,
   subtitle,
   align = "left",
   size = "lg",
@@ -35,21 +37,16 @@ export function SectionHeadline({
     >
       <h2
         className={cn(
-          "font-display",
-          "font-extrabold",
-          "text-bone-white",
-          "tracking-[-0.02em]",
+          "font-display font-extrabold text-bone-white tracking-[-0.02em]",
           sizeMap[size],
         )}
       >
-        {title}
+        {heading}
       </h2>
       {subtitle && (
         <p
           className={cn(
-            "text-base",
-            "text-ash-text",
-            "mt-4",
+            "text-base text-ash-text mt-4",
             align === "center" ? "max-w-2xl mx-auto" : "max-w-2xl",
           )}
         >
