@@ -443,7 +443,84 @@ git push origin main    # auto-deploys to Vercel production
 
 ---
 
+# Session 5 — NavBar Glassmorphism Redesign (2026-06-20, same day)
+
+**Mục tiêu:** User feedback "phần trên này xấu quá" — NavBar thiếu visual identity. Redesign với G-mark logo + glassmorphism + animation.
+
+### Work Completed
+- [x] **GMark component** (`components/ui/g-mark.tsx`): SVG gradient logo — rounded square 32x32 với aurora gradient fill (violet → plasma → blue), white G cutout shape. Optional `withBg` prop wrap trong gradient border.
+- [x] **NavBar v2** (`components/ui/nav-bar.tsx`): full redesign
+  - Glassmorphism: `bg-obsidian/70 backdrop-blur-xl` on scroll
+  - Height shrink: 80px → 64px khi scroll
+  - 3-col layout: `[G-mark + wordmark] [center nav] [EN + CTA]`
+  - Aurora gradient underline animation on nav link hover (scale-x 0→1)
+  - Scroll progress bar at bottom (aurora gradient, scaleX theo scrollY)
+  - Wordmark size shrink 17px → 15px on scroll
+  - CTA "Đăng nhập" dùng `ButtonPrimary` (thay `ButtonUtility` quá nhỏ) + shimmer on hover
+- [x] **Bug fix**: Logo "GLOWSTUDIO" 16px text-bone-white trên nền sáng bị lẫn → thay bằng G-mark visual + 17px wordmark nổi bật
+
+### Key Decisions
+| Decision | Rationale |
+| --- | --- |
+| G-mark gradient violet→plasma→blue | Match brand palette aurora-violet #7c5cff, plasma-pink #d25fff, arc-blue #33d0ff — 3 màu tạo visual identity mạnh hơn 1 màu |
+| Aurora underline scale-x animation | Subtle hover feedback, không aggressive như bg-color shift, dùng gradient để tie với brand |
+| Scroll progress bar ở dưới nav | Standard pattern cho long-scroll landing pages, bổ sung vị trí nav, không tốn thêm space |
+| Shrink height 80→64 on scroll | Free up vertical real estate khi user đọc content, vẫn giữ nav accessible |
+| ButtonPrimary cho "Đăng nhập" | Primary CTA cần prominence, ButtonUtility quá subtle cho top-right nav |
+| Center nav với flex-1 justify-center | Balance visual weight 2 bên, nav links center là convention cho SaaS marketing site |
+
+### Files Modified
+- `components/ui/g-mark.tsx` — new SVG logo component
+- `components/ui/nav-bar.tsx` — full redesign
+- `components/ui/index.ts` — export GMark
+
+### Current State
+- ✅ Build pass clean: 11 routes, no warnings
+- ✅ TypeScript 0 errors
+- ✅ Pushed: `d7fc7fc..1903f27 main -> main` (commit `1903f27`)
+- ✅ Deployed: production `https://glowstudio-three.vercel.app` updated
+- ✅ Smoke test: `Glowstudio` wordmark, `gMarkGradient` SVG, `Đăng nhập` button đều render
+
+### NavBar v2 Feature Inventory
+**Visual:**
+- G-mark 32x32 gradient logo (violet → plasma → blue)
+- Wordmark "Glowstudio" 17px/15px dynamic
+- Center nav với 4-5 links
+- Primary CTA button (white pill)
+- EN language switcher
+
+**States:**
+- Top: `bg-transparent`, `h-20`, no border
+- Scrolled: `bg-obsidian/70 backdrop-blur-xl`, `h-16`, `border-b border-mist/10`
+
+**Animations:**
+- Aurora gradient underline scale-x 0→1 on link hover (300ms)
+- Scroll progress bar scaleX 0→1 (100ms)
+- Height shrink 80→64px on scroll (300ms)
+- Wordmark size shrink 17→15px on scroll
+- Shimmer light sweep on CTA button hover
+
+### Known Issues / Tech Debt
+- ❌ Mobile menu chưa có hamburger drawer (chỉ center nav ẩn trên mobile, chưa có alternative)
+- ❌ `backdrop-blur-xl` có thể gây jank trên mobile Safari cũ — chưa test
+- ❌ Aurora gradient underline dùng `bg-gradient-to-r` với 3 stops — chỉ hiển thị khi hover, có thể thêm `from-X via-Y to-Z` cho visual feedback mượt hơn
+- ❌ Real backend, auth flow, image generation
+- ❌ No `app/not-found.tsx`, `app/loading.tsx`, `app/error.tsx`
+- ❌ No per-page SEO `generateMetadata`
+- ❌ Footer social `href="#"` placeholders
+- ❌ Vercel CHƯA connect GitHub (vẫn manual deploy)
+
+### Next Steps
+1. **Visual verify** ở browser: G-mark có rõ không, glassmorphism có hiệu ứng blur không, scroll progress bar có chạy không, aurora underline có animation mượt không
+2. **Mobile check (375px)**: layout có vỡ không, nav có usable không (chưa có hamburger menu)
+3. **Optional**: thêm mobile menu drawer
+4. **Optional**: thêm `useReducedMotion` cho a11y
+5. **Connect Vercel → GitHub** để auto-deploy
+
+---
+
 _Generated at end of deploy session. Pick up from "Immediate Next Steps" in new session._
 _Appended: GitHub push session (2026-06-20)._
 _Appended: Landing page redesign session (2026-06-20)._
-_Appended: Animation system + Studio mockup session (2026-06-20). Next: visual verify, mobile check, perf audit._
+_Appended: Animation system + Studio mockup session (2026-06-20)._
+_Appended: NavBar glassmorphism session (2026-06-20). Next: visual verify, mobile menu, perf audit._
