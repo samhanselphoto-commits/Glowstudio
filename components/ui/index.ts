@@ -41,3 +41,5 @@ export type { EmptyStateProps } from "./empty-state";
 export { PricingCard } from "./pricing-card";
 export type { PricingCardProps } from "./pricing-card";
 export { Footer } from "./footer";
+export { StudioMockup } from "./studio-mockup";
+export type { StudioMockupProps } from "./studio-mockup";
