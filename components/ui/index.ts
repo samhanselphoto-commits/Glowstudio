@@ -43,3 +43,5 @@ export type { PricingCardProps } from "./pricing-card";
 export { Footer } from "./footer";
 export { StudioMockup } from "./studio-mockup";
 export type { StudioMockupProps } from "./studio-mockup";
+export { GMark } from "./g-mark";
+export type { GMarkProps } from "./g-mark";
