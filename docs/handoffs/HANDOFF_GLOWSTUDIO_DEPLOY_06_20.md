@@ -369,6 +369,81 @@ git push origin main    # auto-deploys to Vercel production
 
 ---
 
+# Session 4 — Animation System + Studio Mockup (2026-06-20, same day)
+
+**Mục tiêu:** User feedback "web lỗi tè le, làm có animation này kia cho bắt mắt" — fix hero overflow + add bold motion system. Scope: chỉ landing page.
+
+### Work Completed
+- [x] **Bug fix**: HeroWordmark overflow ở lg breakpoint → chuyển sang `size="sm"` (78/98px thay vì 120/165px) vừa 50% col width
+- [x] **Animation system** trong `app/globals.css`:
+  - 12 keyframes: `fadeUp`, `fadeIn`, `scaleIn`, `float`, `floatReverse`, `glowPulse`, `gradientShift`, `auroraText`, `shimmer`, `tilt`, `spin`, `marquee`, `slowRotate`
+  - Utility classes: `animate-fade-up`, `animate-float`, `animate-glow-pulse`, etc.
+  - Stagger delays: `delay-100` → `delay-1000`
+  - `tilt-container` + `tilt-on-hover` cho 3D perspective hover
+  - `shimmer-on-hover` cho light sweep effect trên buttons
+  - `text-aurora-gradient` cho flowing violet gradient text
+  - `bg-noise` SVG filter overlay cho film grain
+- [x] **StudioMockup component** (`components/ui/studio-mockup.tsx`): CSS-only mini dashboard thay random picsum image
+  - Top bar: traffic lights + "GLOWSTUDIO · STUDIO" title
+  - 3-col body: tools (5 pills) | canvas (prompt + toolbar + 4 gradient result tiles) | params (6 rows)
+  - Floating sparkle decoration trong result tiles
+- [x] **Hero animations**: aurora gradient text trên wordmark, StudioMockup với 3D tilt + float + glow orbs, stagger entrance delay 100/200/300/400/500
+- [x] **Section animations**:
+  - Social proof: hover opacity 60→100, color shift bone-white
+  - Stats bar: glow pulse orb accent, stagger reveal
+  - Features: IntersectionObserver scroll-reveal, 3D tilt on image grids, icon trong framed chip
+  - Pricing: per-card stagger reveal, hover -translate-y
+  - FAQ: hover border aurora-violet, scroll-reveal stagger
+- [x] **Closing CTA**: grid pattern overlay + 2 glow orbs pulsing offset, shimmer button
+- [x] **Background decor**: 3 animated aurora orbs (violet/pink/blue) với slow float + noise texture overlay
+
+### Key Decisions
+| Decision | Rationale |
+| --- | --- |
+| Dùng `size="sm"` thay default | Hero wordmark 165px quá to cho 50% col width ở lg, overflow cắt chữ |
+| CSS-only StudioMockup thay ảnh thật | Không có Higgsfield access, ảnh random picsum không match vibe AI studio → build mini dashboard bằng gradient + shapes |
+| IntersectionObserver thay `animation-timeline: view()` | Browser support `animation-timeline` còn limited, IO hook universal hơn |
+| 3 glow orbs chậm khác nhau (12/14/16s) | Tạo organic motion, không đồng bộ máy móc |
+| `text-aurora-gradient` với hue-rotate 15deg | Subtle color shift, không distract |
+| Stagger delays 80-150ms giữa cards | Đủ slow để cảm nhận sequence, không quá lâu |
+
+### Files Modified
+- `app/page.tsx` — full restructure: BackgroundDecor, animated Hero, social proof, stats, closing CTA
+- `app/landing-client.tsx` — useReveal hook, scroll-reveal cho features/pricing/FAQ, hover effects
+- `app/globals.css` — 12 keyframes + utility layer
+- `components/ui/studio-mockup.tsx` — new CSS-only mockup
+- `components/ui/index.ts` — export StudioMockup
+
+### Current State
+- ✅ Build pass clean: 11 routes, no warnings, `/` route 1.76 → 2.34 kB
+- ✅ TypeScript 0 errors
+- ✅ §0 verified: 0 `text-white`, 0 `dark:`, font-display chỉ ở 34/44/48/58/78px
+- ✅ Pushed: `5795ef0..8dde4cc main -> main` (commit `8dde4cc`)
+- ✅ Deployed: production `https://glowstudio-three.vercel.app` updated, deployment `dpl_EeEakJvoS1upnExfwkxG6P8APdgn`
+- ✅ Smoke test: animation markers (`animate-fade-up`, `tilt-container`, `shimmer-on-hover`, `text-aurora-gradient`, `bg-noise`, `GLOWSTUDIO · STUDIO`) đều có trong HTML
+
+### Animation Inventory (visual)
+**Entrance:** fadeUp, fadeIn, scaleIn + stagger delays
+**Looping:** float (6-16s), floatReverse, glowPulse (4s + 2s offset), slowRotate (30s), gradientShift (8s), auroraText (6s)
+**Hover:** 3D tilt (perspective 1000px, rotateY/X), shimmer light sweep, scale 1.02-1.03, opacity 60→100, color shift bone-white, border aurora-violet/30→/50, -translate-y 4px
+**Background:** 3 aurora orbs blur-[120px] (violet/pink/blue) + noise texture opacity 50%
+
+### Known Issues / Tech Debt (carry over)
+- ❌ Real backend, auth flow, image generation
+- ❌ No `app/not-found.tsx`, `app/loading.tsx`, `app/error.tsx`
+- ❌ No per-page SEO `generateMetadata`
+- ❌ Footer social `href="#"` placeholders
+- ❌ Vercel CHƯA connect GitHub (vẫn manual `vercel deploy --prod` mỗi lần)
+
+### Next Steps
+1. **Visual verify ở browser** (HIGH): mở `https://glowstudio-three.vercel.app` xem animation: Hero mockup có tilt khi hover không, scroll-reveal có trigger không, glow orbs có chạy không
+2. **Mobile check (375px)**: tilt có vỡ không (perspective gây jank trên mobile có thể cần disable), animation có quá nặng không
+3. **Performance audit**: Lighthouse check — animation có làm giảm performance score không
+4. **Optional polish**: thêm `useReducedMotion` hook để respect user's `prefers-reduced-motion` setting (a11y best practice)
+
+---
+
 _Generated at end of deploy session. Pick up from "Immediate Next Steps" in new session._
 _Appended: GitHub push session (2026-06-20)._
-_Appended: Landing page redesign session (2026-06-20). Next: commit + push changes, visual verify, connect Vercel → GitHub._
+_Appended: Landing page redesign session (2026-06-20)._
+_Appended: Animation system + Studio mockup session (2026-06-20). Next: visual verify, mobile check, perf audit._
