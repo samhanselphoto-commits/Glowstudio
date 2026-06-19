@@ -222,7 +222,7 @@ grep -rn "shadow-\[" . --include="*.tsx"           # only 4 allowed patterns
 ## Open Questions
 
 - [ ] Có cần custom domain `glowstudio.vn` không? Nếu có, user cung cấp DNS access
-- [ ] Connect GitHub repo để auto-deploy, hay giữ direct upload qua Vercel CLI?
+- [x] ~~Connect GitHub repo để auto-deploy, hay giữ direct upload qua Vercel CLI?~~ → **DONE xem Session 2 bên dưới**
 - [ ] Có muốn add real backend (NextAuth + Postgres + Stripe) cho v2, hay giữ mock v1 để demo?
 - [ ] picsum.photos có đủ cho demo, hay cần real image CDN ngay từ đầu?
 
@@ -239,4 +239,136 @@ grep -rn "shadow-\[" . --include="*.tsx"           # only 4 allowed patterns
 
 ---
 
+# Session 2 — GitHub Push (2026-06-20, same day)
+
+**Mục tiêu:** Push code lên GitHub, setup tracking, chuẩn bị cho Vercel auto-deploy.
+
+### Work Completed
+- [x] **Verify ESLint warnings status**: investigation cho thấy `next/image` đã có sẵn trong `aade2dd` Initial scaffold. Commit `348e0c9 chore: replace <img> with next/image for ESLint cleanup` (do session trước push, không phải session này tạo) đã chốt issue. Working tree clean, không cần thêm code change.
+- [x] **GitHub push**: `git push -u origin main` thành công. Repo live: `https://github.com/samhanselphoto-commits/Glowstudio`. Tracking set up (`Local ref configured for 'git push': main pushes to main`).
+- [x] **Update handoff**: session này append vào file này để giữ continuity.
+
+### Key Decisions
+| Decision | Rationale |
+| --- | --- |
+| Update handoff in-place (không tạo file mới) | GitHub push là phần tiếp nối của deploy session, không phải scope mới |
+| Tên repo `Glowstudio` (capital G) | User cung cấp URL như vậy, không rename để tránh phá existing link |
+
+### Current State
+- ✅ GitHub repo live: https://github.com/samhanselphoto-commits/Glowstudio
+- ✅ 5 commits trên `main` (HEAD: `348e0c9`)
+- ✅ Local main tracks `origin/main`, up to date
+- ✅ Vercel production vẫn live ở `https://glowstudio-three.vercel.app` (chưa re-deploy từ GitHub)
+- ⏸️ Vercel CHƯA connect GitHub repo — vẫn ở chế độ direct upload qua CLI
+
+### Next Steps (cho session sau)
+1. **Vercel → Connect GitHub** (HIGH PRIORITY): vào https://vercel.com/az-ing-s-projects/glowstudio → Settings → Git → Connect `samhanselphoto-commits/Glowstudio`. Khi đó mỗi `git push origin main` sẽ trigger auto-deploy. Production URL giữ nguyên.
+2. **(Optional) Custom domain**: Settings → Domains → add `glowstudio.vn` nếu có DNS access. Hiện không cần.
+3. **(Optional) Re-deploy từ GitHub** sau khi connect: push một commit nhỏ (vd: thêm `app/not-found.tsx`) để verify auto-deploy pipeline hoạt động.
+
+### Things to Know
+- **`core.autocrlf=true`** trên Windows — `git diff` sẽ warning "LF will be replaced by CRLF". Không ảnh hưởng push, content vẫn đúng sau normalization.
+- **Vercel project tên `glowstudio`** (lowercase) trong scope `az-ing-s-projects` — KHÁC với GitHub repo `Glowstudio` (capital G). Khi connect, cần chọn đúng repo trong dropdown.
+- **Production URL `https://glowstudio-three.vercel.app`** sẽ giữ nguyên khi connect GitHub — Vercel không reset URL khi đổi deployment source.
+
+### Commands to Run
+```bash
+cd "D:/CLAUDE/GLOWSTUDIO"
+
+# Verify push status
+git status
+git log --oneline -5
+git remote show origin
+
+# Future workflow (sau khi connect Vercel + GitHub)
+git add -A
+git commit -m "feat: ..."
+git push origin main    # auto-deploys to Vercel production
+```
+
+### Known Issues / Tech Debt (carry over từ Session 1)
+- ❌ Real backend, auth flow, image generation (vẫn mock)
+- ❌ No `app/not-found.tsx`, `app/loading.tsx`, `app/error.tsx` design
+- ❌ No per-page SEO `generateMetadata`
+- ❌ Footer link `href="#"` cho Facebook/Instagram — placeholder
+
+---
+
+# Session 3 — Landing Page Redesign (2026-06-20, same day)
+
+**Mục tiêu:** User feedback "web giao diện vẫn chưa như tôi mong muốn, hãy xem lại Leonardo.ai để fix" — focus landing page. Deep audit vs Leonardo reference + restructure.
+
+### Audit findings (vs Leonardo.ai reference)
+| Element | Leonardo | Glowstudio (before) | Gap |
+| --- | --- | --- | --- |
+| Hero visual | Dashboard mockup bên cạnh text | Text-only centered | **Thiếu visual** |
+| Social proof | Brand logos strip | Trust tag chips (decorative) | **Thiếu thật** |
+| Stats / KPIs | 3-4 KPI bar | Không có | **Thiếu** |
+| Features | Alternating text + gallery blocks | 3-col summary grid | **Quá summary** |
+| Closing CTA | Full-width banner trước footer | Không có | **Thiếu** |
+
+### Work Completed
+- [x] **Hero restructure**: 2-col grid (lg breakpoint) — text trái + visual mockup phải. Image dùng `next/image` với `fill` + `priority` + aurora glow overlay.
+- [x] **Social proof bar**: 6 brand name placeholders (Vinamilk, FPT, Viettel, Shopee VN, Tiki, The Coffee House) — text-only, opacity 60%.
+- [x] **Stats bar**: 4 KPIs (10.000+ designer, 2,4M ảnh, 3 model, 99,9% uptime) trong panel `rounded-[20px] bg-charcoal`.
+- [x] **Features restructure**: 3 alternating blocks (text + 2x2 image grid) thay vì 6-col summary. Mỗi block có icon, headline ≥34px, description, bullet list với `CheckIcon text-toxic-lime`, gallery 4 ảnh.
+- [x] **Closing CTA**: full-width panel trước Footer với aurora glow accent (top-right blur), 2 buttons.
+- [x] **ImageGalleryGrid enhancement**: thêm prop `columns: 2 | 3 | 4` với default 4 — cho phép dùng 2-col grid trong feature blocks.
+
+### Key Decisions
+| Decision | Rationale |
+| --- | --- |
+| 2x2 grid với first image `row-span-2` trong feature blocks | Tạo visual hierarchy, khác với uniform 4-col grid → match Leonardo's asymmetric gallery pattern |
+| Text-only brand logos (không fetch logo thật) | Chưa có CDN access, không thể verify logo usage rights, text-only vẫn giữ "social proof" feel |
+| Stats bar trong `bg-charcoal` panel (không full-width strip) | Match pricing card style → visual consistency; full-width strip sẽ flat với bg-midnight |
+| 3 features blocks (không phải 6) | Mỗi block dày hơn, có image gallery → nặng hơn 6-col summary. 3 là sweet spot cho narrative flow |
+| Aurora glow blur (CTA section) dùng `bg-aurora-soft blur-3xl` | Match §1.3 brand surface highlight rules, không vi phạm §0 |
+
+### Files Modified
+- `app/page.tsx` — restructured Hero + added 3 new sections
+- `app/landing-client.tsx` — features section replaced with alternating blocks
+- `components/ui/image-gallery-grid.tsx` — added `columns` prop
+- `lib/mock-data.ts` — added `featuresDetailed`, `brandLogos`, `stats` exports
+
+### Current State
+- ✅ Build pass clean: 11 routes, no warnings, `/` route 1.36 → 1.76 kB
+- ✅ TypeScript 0 errors
+- ✅ §0 immutable rules verified: 0 `text-white`, 0 `dark:`, font-display chỉ ở text ≥34px, 3 radii only
+- ✅ Working tree has 4 modified files (page.tsx, landing-client.tsx, image-gallery-grid.tsx, mock-data.ts) chưa commit
+- ⏸️ Vercel CHƯA connect GitHub → changes ở local, cần commit + push để deploy
+
+### Final section order (sau redesign)
+1. NavBar
+2. **Hero** (2-col: text + visual mockup)
+3. **Social proof bar** (6 brands)
+4. **Stats bar** (4 KPIs)
+5. Gallery showcase (8 items, 4-col)
+6. Use cases (TabFilterRow + 24 items)
+7. **Features** (3 alternating blocks)
+8. Pricing preview (4 cards)
+9. FAQ (6 items)
+10. **Closing CTA** banner
+11. Footer
+
+### Next Steps
+1. **Commit + push** landing redesign → trigger Vercel auto-deploy (nếu đã connect GitHub) hoặc manual re-deploy qua CLI
+2. **Visual verify** ở production URL: hero có mockup rõ không, social proof 6 brand readable, stats 4-col balanced, features alternating blocks có lật chiều đúng, closing CTA glow nổi bật
+3. **Responsive check mobile (375px)**: hero stack vertical, stats 2-col, features single column
+
+### Known Issues / Tech Debt (updated)
+- ❌ Brand logos chỉ là text placeholder, không phải logo thật
+- ❌ Stats numbers hardcoded (chưa có analytics integration)
+- ❌ Hero mockup dùng random picsum image, không phải actual Studio screenshot
+- ❌ Real backend, auth flow, image generation (vẫn mock)
+- ❌ No `app/not-found.tsx`, `app/loading.tsx`, `app/error.tsx` design
+- ❌ No per-page SEO `generateMetadata`
+- ❌ Footer link `href="#"` cho Facebook/Instagram — placeholder
+
+### Plan file reference
+- `C:\Users\samha\.claude\plans\swift-forging-sphinx.md` — full plan + context
+
+---
+
 _Generated at end of deploy session. Pick up from "Immediate Next Steps" in new session._
+_Appended: GitHub push session (2026-06-20)._
+_Appended: Landing page redesign session (2026-06-20). Next: commit + push changes, visual verify, connect Vercel → GitHub._

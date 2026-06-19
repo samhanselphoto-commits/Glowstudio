@@ -127,6 +127,82 @@ export const features: Feature[] = [
 ];
 
 // ============================================================
+// FEATURES — detailed alternating blocks (for landing)
+// ============================================================
+export type FeatureDetailed = {
+  id: string;
+  icon: FeatureIconName;
+  title: string;
+  description: string;
+  bullets: string[];
+  gallerySeedPrefix: string; // picsum seed prefix → 4 ảnh
+};
+
+export const featuresDetailed: FeatureDetailed[] = [
+  {
+    id: "models",
+    icon: "Sparkles",
+    title: "3 model AI, một studio",
+    description:
+      "Chọn model phù hợp từng brief. GPT Image cho ảnh chất lượng cao, NANO BANANA cho tốc độ, Zturbo cho social post hàng loạt.",
+    bullets: [
+      "GPT Image — 8 credits, lookbook & print",
+      "NANO BANANA — 4 credits, cân bằng tốc độ & chất lượng",
+      "Zturbo — 2 credits, social post nhanh nhất",
+    ],
+    gallerySeedPrefix: "feat-models",
+  },
+  {
+    id: "style",
+    icon: "Palette",
+    title: "Style reference giữ đúng brand",
+    description:
+      "Upload 1–3 ảnh tham chiếu, AI giữ palette, mood và composition. Prompt riêng, anchor phong cách chung — on-brand mọi lúc.",
+    bullets: [
+      "Upload tối đa 3 ảnh tham chiếu",
+      "Tự động khóa palette & mood",
+      "Composition lock giữ nhịp lookbook",
+    ],
+    gallerySeedPrefix: "feat-style",
+  },
+  {
+    id: "workflow",
+    icon: "Layers",
+    title: "Workflow từ prompt đến publish",
+    description:
+      "Tạo ảnh, chỉnh sửa, xuất bộ. Tất cả trong một studio, không cần chuyển qua Photoshop hay tool khác.",
+    bullets: [
+      "Inpaint & upscale trực tiếp",
+      "Batch generation 4 variation",
+      "Export PNG / JPG / WebP đúng kích thước",
+    ],
+    gallerySeedPrefix: "feat-workflow",
+  },
+];
+
+// ============================================================
+// BRAND LOGOS — social proof bar
+// ============================================================
+export const brandLogos = [
+  { name: "Vinamilk" },
+  { name: "FPT" },
+  { name: "Viettel" },
+  { name: "Shopee VN" },
+  { name: "Tiki" },
+  { name: "The Coffee House" },
+];
+
+// ============================================================
+// STATS — KPI bar
+// ============================================================
+export const stats = [
+  { value: "10.000+", label: "Designer đang dùng" },
+  { value: "2,4M", label: "Ảnh đã tạo" },
+  { value: "3", label: "Model AI mạnh mẽ" },
+  { value: "99,9%", label: "Uptime" },
+];
+
+// ============================================================
 // PLANS — pricing tiers
 // ============================================================
 export type Plan = {
