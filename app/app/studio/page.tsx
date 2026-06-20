@@ -2,66 +2,70 @@
 
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
-  PromptInput,
-  GenerateButton,
+  NavBar,
+  ImageGalleryGrid,
+  EmptyState,
+  CreditBadge,
   ModelSelector,
   AspectRatioSelector,
-  CreditBadge,
+  GenerateButton,
   ButtonGhost,
+  ToastNotification,
 } from "@/components/ui";
-import { STUDIO_TOOLS, ASPECT_RATIOS } from "@/lib/constants";
+import { galleryAll, galleryShowcase, type GalleryItem } from "@/lib/mock-data";
 import {
-  DownloadIcon,
-  RefreshIcon,
-  SparkleIcon,
   ImageLucideIcon,
-  CheckIcon,
+  ChevronDownIcon,
 } from "@/components/icons";
 import { cn } from "@/lib/utils";
-import type { LucideIcon } from "lucide-react";
 
-type Tool = {
-  id: string;
+interface TabDef {
+  id: TabId;
   label: string;
-  icon: LucideIcon;
-  active?: boolean;
-};
+  disabled?: boolean;
+  badge?: string;
+}
 
-const TOOLS: Tool[] = [
-  { id: "create", label: "Tạo ảnh", icon: SparkleIcon, active: true },
-  { id: "style-ref", label: "Style ref", icon: ImageLucideIcon },
-  { id: "inpaint", label: "Inpaint", icon: ImageLucideIcon },
-  { id: "upscale", label: "Upscale", icon: ImageLucideIcon },
-  { id: "batch", label: "Batch", icon: ImageLucideIcon },
+type TabId = "all" | "image" | "video" | "audio" | "supercomputer";
+
+const TABS: TabDef[] = [
+  { id: "all", label: "Tất cả" },
+  { id: "image", label: "Ảnh" },
+  { id: "video", label: "Video", disabled: true, badge: "Soon" },
+  { id: "audio", label: "Audio", disabled: true, badge: "Soon" },
+  { id: "supercomputer", label: "Supercomputer", disabled: true, badge: "Soon" },
 ];
 
-const RIGHT_TABS = ["Parameters", "History", "Prompt"] as const;
-type RightTab = (typeof RIGHT_TABS)[number];
-
-const REFERENCE_IMAGES = [
-  "https://picsum.photos/seed/ref-1/200/200",
-  "https://picsum.photos/seed/ref-2/200/200",
-  "https://picsum.photos/seed/ref-3/200/200",
-];
-
-const MOCK_RESULTS = [
-  { id: "r1", url: "https://picsum.photos/seed/result-1/600/600" },
-  { id: "r2", url: "https://picsum.photos/seed/result-2/600/600" },
-  { id: "r3", url: "https://picsum.photos/seed/result-3/600/600" },
-  { id: "r4", url: "https://picsum.photos/seed/result-4/600/600" },
-];
+/** Filter the showcase feed by category. */
+function filterByTab(items: GalleryItem[], tab: TabId): GalleryItem[] {
+  if (tab === "all") return items;
+  if (tab === "image") {
+    return items.filter(
+      (i) => i.category === "Lookbook" || i.category === "Sản phẩm",
+    );
+  }
+  return items;
+}
 
 export default function StudioPage() {
+  const [activeTab, setActiveTab] = React.useState<TabId>("all");
   const [model, setModel] = React.useState("gpt-image");
-  const [ratio, setRatio] = React.useState<string>("1:1");
-  const [activeTool, setActiveTool] = React.useState("create");
-  const [activeRight, setActiveRight] = React.useState<RightTab>("Parameters");
+  const [ratio, setRatio] = React.useState("1:1");
+  const [count, setCount] = React.useState(4);
+  const [prompt, setPrompt] = React.useState("");
   const [generating, setGenerating] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
-  const [results, setResults] = React.useState(MOCK_RESULTS);
   const [hasGenerated, setHasGenerated] = React.useState(false);
+  const [toast, setToast] = React.useState<string | null>(null);
+
+  const items = React.useMemo(
+    () =>
+      activeTab === "all"
+        ? galleryShowcase
+        : filterByTab(galleryAll, activeTab),
+    [activeTab],
+  );
 
   // Mock progress for generating state
   React.useEffect(() => {
@@ -73,293 +77,331 @@ export default function StudioPage() {
           clearInterval(interval);
           setGenerating(false);
           setHasGenerated(true);
+          setToast(`Đã tạo xong ${count} ảnh với ${ratio}`);
           return 100;
         }
         return p + 5;
       });
-    }, 200);
+    }, 150);
     return () => clearInterval(interval);
-  }, [generating]);
+  }, [generating, count, ratio]);
+
+  const handleGenerate = () => {
+    if (!prompt.trim()) {
+      setToast("Viết prompt trước khi tạo nhé");
+      return;
+    }
+    setGenerating(true);
+  };
+
+  // Custom middle slot for NavBar: TabFilterRow (compact)
+  const tabsMiddle = (
+    <div className="hidden md:flex items-center gap-2 min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {TABS.map((t) => (
+        <button
+          key={t.id}
+          type="button"
+          disabled={t.disabled}
+          onClick={() => !t.disabled && setActiveTab(t.id)}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition whitespace-nowrap",
+            activeTab === t.id
+              ? "bg-aurora-violet text-bone-white shadow-[0_0_20px_rgba(124,92,255,0.45)]"
+              : "text-bone-white/80 hover:text-bone-white",
+            t.disabled && "opacity-40 cursor-not-allowed hover:text-bone-white/80",
+          )}
+        >
+          {t.label}
+          {t.badge && (
+            <span
+              className={cn(
+                "rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                activeTab === t.id
+                  ? "bg-bone-white/20 text-bone-white"
+                  : "bg-aurora-soft text-aurora-violet border border-aurora-violet/30",
+              )}
+            >
+              {t.badge}
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+
+  // Custom right slot for NavBar
+  const rightSlot = (
+    <>
+      <CreditBadge credits={1247} />
+      <Link
+        href="/app/account"
+        className="rounded-full bg-obsidian border border-mist p-1.5 hover:border-aurora-violet transition"
+        aria-label="Tài khoản"
+      >
+        <span className="block w-7 h-7 rounded-full bg-aurora-violet text-bone-white text-xs font-bold flex items-center justify-center">
+          ML
+        </span>
+      </Link>
+    </>
+  );
 
   return (
-    <div className="h-screen flex flex-col bg-midnight">
-      {/* Top bar */}
-      <header className="h-16 border-b border-mist/10 flex items-center justify-between px-6 bg-obsidian">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="font-bold text-base text-bone-white">
-            GLOWSTUDIO
-          </Link>
-          <span className="text-charcoal-mute">/</span>
-          <span className="text-sm text-ash-text">Studio</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <CreditBadge credits={1247} />
-          <Link
-            href="/app/account"
-            className="rounded-full bg-obsidian border border-mist p-1.5 hover:border-aurora-violet transition"
-            aria-label="Tài khoản"
-          >
-            <span className="block w-7 h-7 rounded-full bg-aurora-violet text-bone-white text-xs font-bold flex items-center justify-center">
-              ML
-            </span>
-          </Link>
-        </div>
-      </header>
+    <div className="h-screen flex flex-col bg-midnight relative overflow-hidden">
+      <BackgroundDecor />
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* LEFT RAIL — Tools */}
-        <aside className="w-[280px] border-r border-mist/10 p-5 flex flex-col gap-2 overflow-y-auto">
-          {TOOLS.map((tool) => {
-            const Icon = tool.icon;
-            const isActive = tool.id === activeTool;
-            return (
-              <button
-                key={tool.id}
-                type="button"
-                onClick={() => setActiveTool(tool.id)}
-                className={cn(
-                  "rounded-full px-5 py-3",
-                  "text-sm font-medium",
-                  "flex items-center gap-3",
-                  "transition text-left",
-                  isActive
-                    ? "bg-aurora-soft text-aurora-violet border border-aurora-violet"
-                    : "text-ash-text hover:text-bone-white hover:bg-obsidian border border-transparent",
+      <div className="relative z-10 flex flex-col h-full">
+        {/* TOP HEADER — NavBar với breadcrumbs + tabs + credits */}
+        <NavBar
+          variant="app"
+          breadcrumbs="Studio"
+          middle={tabsMiddle}
+          right={rightSlot}
+        />
+
+        {/* SCROLL CONTENT — full-bleed gallery feed */}
+        <main className="flex-1 overflow-y-auto pb-44">
+          <div className="max-w-[1600px] mx-auto px-6 md:px-10 py-8">
+            {/* Section title nhỏ + filter indicator */}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="font-display text-[28px] font-extrabold text-bone-white tracking-[-0.02em]">
+                  {activeTab === "all" ? "Khám phá" : "Ảnh"}
+                </h1>
+                <p className="text-sm text-ash-text mt-1">
+                  {items.length} ảnh · Tạo bởi cộng đồng Glowstudio
+                </p>
+              </div>
+
+              {/* Quick filter chips */}
+              <div className="hidden md:flex items-center gap-2">
+                {["Trending", "Mới nhất", "Lookbook", "Sản phẩm", "Social"].map(
+                  (f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      className="rounded-full px-3.5 py-1.5 text-xs font-medium text-ash-text border border-mist/20 hover:border-aurora-violet hover:text-bone-white transition"
+                    >
+                      {f}
+                    </button>
+                  ),
                 )}
-              >
-                <Icon className="w-4 h-4" />
-                {tool.label}
-              </button>
-            );
-          })}
-
-          <div className="border-t border-mist/10 my-4" />
-
-          <h4 className="text-xs font-bold text-charcoal-mute uppercase tracking-wider px-5 mb-2">
-            Tham chiếu
-          </h4>
-          <div className="grid grid-cols-2 gap-2">
-            {REFERENCE_IMAGES.map((url, i) => (
-              <div
-                key={i}
-                className="relative rounded-[8.4px] overflow-hidden border border-mist/10 aspect-square"
-              >
-                <Image
-                  src={url}
-                  alt={`Tham chiếu ${i + 1}`}
-                  fill
-                  sizes="120px"
-                  className="object-cover"
-                />
               </div>
-            ))}
-          </div>
-        </aside>
-
-        {/* CENTER — Canvas */}
-        <main className="flex-1 flex flex-col p-7 overflow-y-auto">
-          {/* Prompt area */}
-          <div className="rounded-[20px] bg-charcoal border border-mist/10 p-7">
-            <PromptInput />
-
-            <div className="flex items-center justify-between mt-5 flex-wrap gap-3">
-              <div className="flex items-center gap-3 flex-wrap">
-                <ModelSelector value={model} onChange={setModel} />
-                <AspectRatioSelector value={ratio} onChange={setRatio} />
-              </div>
-              <GenerateButton
-                cost={8}
-                loading={generating}
-                onClick={() => setGenerating(true)}
-              >
-                Tạo ảnh
-              </GenerateButton>
             </div>
-          </div>
 
-          {/* Result canvas */}
-          <div className="mt-5 flex-1 rounded-[20px] bg-charcoal border border-mist/10 p-7 min-h-[400px]">
-            {generating ? (
-              <GeneratingState progress={progress} />
-            ) : hasGenerated ? (
-              <ResultGrid results={results} />
+            {/* Gallery feed */}
+            {items.length > 0 ? (
+              <ImageGalleryGrid
+                items={items}
+                columns={5}
+                className="animate-fade-up"
+              />
             ) : (
-              <EmptyCanvas />
+              <EmptyState
+                title="Chưa có ảnh nào"
+                description="Hãy thử chuyển tab khác hoặc tạo ảnh mới ở thanh dưới."
+                icon={<ImageLucideIcon className="w-16 h-16" />}
+              />
             )}
           </div>
         </main>
 
-        {/* RIGHT RAIL — Inspector */}
-        <aside className="w-[320px] border-l border-mist/10 flex flex-col">
-          <div className="flex border-b border-mist/10">
-            {RIGHT_TABS.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setActiveRight(tab)}
-                className={cn(
-                  "flex-1 px-5 py-4 text-sm font-medium border-b-2 transition",
-                  activeRight === tab
-                    ? "text-bone-white border-aurora-violet"
-                    : "text-ash-text border-transparent hover:text-bone-white",
-                )}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          <div className="flex-1 p-5 overflow-y-auto">
-            {activeRight === "Parameters" && <ParametersPanel />}
-            {activeRight === "History" && <HistoryPanel />}
-            {activeRight === "Prompt" && <PromptDetailPanel />}
-          </div>
-        </aside>
-      </div>
-    </div>
-  );
-}
-
-function GeneratingState({ progress }: { progress: number }) {
-  return (
-    <div className="h-full flex flex-col items-center justify-center min-h-[360px]">
-      <div className="relative w-full max-w-md aspect-square rounded-[8.4px] overflow-hidden bg-obsidian">
-        <Image
-          src="https://picsum.photos/seed/streaming/600/600"
-          alt=""
-          fill
-          sizes="(max-width: 768px) 80vw, 448px"
-          className="object-cover blur-md opacity-60"
+        {/* BOTTOM DOCK — floating prompt + controls */}
+        <BottomDock
+          prompt={prompt}
+          setPrompt={setPrompt}
+          model={model}
+          setModel={setModel}
+          ratio={ratio}
+          setRatio={setRatio}
+          count={count}
+          setCount={setCount}
+          generating={generating}
+          progress={progress}
+          onGenerate={handleGenerate}
+          hasGenerated={hasGenerated}
         />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-12 h-12 border-2 border-aurora-violet border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-sm text-ash-text mt-4">
-              Đang tạo ảnh... {progress}%
-            </p>
-          </div>
-        </div>
+
+        {/* Toast feedback */}
+        {toast && (
+          <ToastNotification
+            title={toast}
+            variant="success"
+            duration={3500}
+            onClose={() => setToast(null)}
+          />
+        )}
       </div>
-      <ButtonGhost size="default" className="mt-6">
-        Hủy
-      </ButtonGhost>
     </div>
   );
 }
 
-function ResultGrid({ results }: { results: { id: string; url: string }[] }) {
+/* ============================================================
+   BOTTOM DOCK — floating prompt + inline controls
+   ============================================================ */
+
+interface BottomDockProps {
+  prompt: string;
+  setPrompt: (v: string) => void;
+  model: string;
+  setModel: (v: string) => void;
+  ratio: string;
+  setRatio: (v: string) => void;
+  count: number;
+  setCount: (n: number) => void;
+  generating: boolean;
+  progress: number;
+  onGenerate: () => void;
+  hasGenerated: boolean;
+}
+
+function BottomDock({
+  prompt,
+  setPrompt,
+  model,
+  setModel,
+  ratio,
+  setRatio,
+  count,
+  setCount,
+  generating,
+  progress,
+  onGenerate,
+  hasGenerated,
+}: BottomDockProps) {
   return (
-    <div className="grid grid-cols-2 gap-3.5 h-full">
-      {results.map((r) => (
-        <div
-          key={r.id}
-          className="relative group rounded-[8.4px] overflow-hidden border border-mist/10 aspect-square"
-        >
-          <Image
-            src={r.url}
-            alt=""
-            fill
-            sizes="(max-width: 1024px) 40vw, 30vw"
-            className="object-cover"
+    <div className="absolute bottom-4 left-0 right-0 z-40 pointer-events-none px-4 animate-fade-up">
+      <div className="max-w-3xl mx-auto pointer-events-auto">
+        <div className="relative">
+          {/* Glow under dock */}
+          <div
+            aria-hidden
+            className="absolute -inset-2 bg-aurora-violet/25 blur-2xl rounded-3xl pointer-events-none"
           />
-          <div className="absolute inset-0 bg-midnight/40 opacity-0 group-hover:opacity-100 transition flex items-end p-3">
-            <div className="flex gap-2">
+          <div className="relative rounded-[20px] surface-aurora shadow-[0_20px_60px_-15px_rgba(124,92,255,0.5),0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden">
+            {/* Prompt row */}
+            <div className="flex items-start gap-3 p-4">
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Mô tả ảnh bạn muốn tạo... ví dụ: 'Lookbook áo dài minimalist, ánh sáng studio mềm'"
+                rows={1}
+                onInput={(e) => {
+                  const el = e.currentTarget;
+                  el.style.height = "auto";
+                  el.style.height = Math.min(el.scrollHeight, 120) + "px";
+                }}
+                className="flex-1 bg-transparent text-bone-white text-sm placeholder:text-charcoal-mute outline-none resize-none leading-relaxed py-2"
+              />
               <button
                 type="button"
-                className="rounded-full bg-obsidian/80 backdrop-blur-sm p-2 hover:bg-aurora-violet transition"
-                aria-label="Tải ảnh"
+                title="Ảnh tham chiếu"
+                className="flex-shrink-0 rounded-full border border-mist/30 p-2 text-ash-text hover:border-aurora-violet hover:text-aurora-violet transition"
               >
-                <DownloadIcon className="w-4 h-4 text-bone-white" />
-              </button>
-              <button
-                type="button"
-                className="rounded-full bg-obsidian/80 backdrop-blur-sm p-2 hover:bg-aurora-violet transition"
-                aria-label="Tạo lại"
-              >
-                <RefreshIcon className="w-4 h-4 text-bone-white" />
+                <ImageLucideIcon className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Controls row OR progress */}
+            {generating ? (
+              <div className="px-4 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-1.5 rounded-full bg-obsidian overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-aurora-violet via-plasma-pink to-arc-blue transition-all duration-200"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-medium text-aurora-violet tabular-nums min-w-[3rem] text-right">
+                    {progress}%
+                  </span>
+                  <ButtonGhost size="sm">Hủy</ButtonGhost>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-3 pb-3 flex-wrap">
+                {/* Model */}
+                <ModelSelector value={model} onChange={setModel} />
+
+                {/* Aspect ratio */}
+                <AspectRatioSelector value={ratio} onChange={setRatio} />
+
+                {/* Count stepper */}
+                <div className="inline-flex items-center gap-1 rounded-full border border-mist bg-obsidian px-1.5 py-1">
+                  <button
+                    type="button"
+                    onClick={() => setCount(Math.max(1, count - 1))}
+                    disabled={count <= 1}
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-ash-text hover:text-bone-white hover:bg-mist/10 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                    aria-label="Giảm"
+                  >
+                    <ChevronDownIcon className="w-3.5 h-3.5 rotate-90" />
+                  </button>
+                  <span className="text-sm font-medium text-bone-white min-w-[1.5rem] text-center tabular-nums">
+                    {count}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setCount(Math.min(8, count + 1))}
+                    disabled={count >= 8}
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-ash-text hover:text-bone-white hover:bg-mist/10 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                    aria-label="Tăng"
+                  >
+                    <ChevronDownIcon className="w-3.5 h-3.5 -rotate-90" />
+                  </button>
+                </div>
+
+                {/* Spacer */}
+                <div className="flex-1" />
+
+                {/* Generate CTA */}
+                <GenerateButton
+                  cost={count * 8}
+                  loading={generating}
+                  onClick={onGenerate}
+                >
+                  {hasGenerated ? "Tạo lại" : "Tạo ảnh"}
+                </GenerateButton>
+              </div>
+            )}
           </div>
         </div>
-      ))}
+      </div>
     </div>
   );
 }
 
-function EmptyCanvas() {
-  return (
-    <div className="h-full flex flex-col items-center justify-center min-h-[360px] text-center">
-      <SparkleIcon className="w-12 h-12 text-aurora-violet mb-5" />
-      <h3 className="text-[19px] font-medium text-bone-white">
-        Sẵn sàng tạo ảnh
-      </h3>
-      <p className="text-sm text-ash-text mt-2 max-w-sm">
-        Viết prompt, chọn model và aspect ratio, rồi bấm Tạo ảnh. Mỗi lượt tốn từ 2
-        đến 8 credits tùy model.
-      </p>
-    </div>
-  );
-}
+/* ============================================================
+   BACKGROUND DECOR — aurora mesh + orbs (lighter than landing)
+   ============================================================ */
 
-function ParametersPanel() {
-  const params = [
-    { label: "Model", value: "GPT Image" },
-    { label: "Aspect ratio", value: "1:1" },
-    { label: "Style strength", value: "0.7" },
-    { label: "Seed", value: "—" },
-    { label: "Steps", value: "30" },
-    { label: "Guidance scale", value: "7.5" },
-  ];
+function BackgroundDecor() {
   return (
-    <div className="flex flex-col gap-2.5">
-      {params.map((p) => (
-        <div
-          key={p.label}
-          className="flex items-center justify-between text-sm"
-        >
-          <span className="text-ash-text">{p.label}</span>
-          <span className="text-bone-white font-medium">{p.value}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
+    <div
+      aria-hidden
+      className="absolute inset-0 pointer-events-none overflow-hidden"
+    >
+      <div
+        className="absolute inset-0 bg-aurora-page animate-aurora-mesh"
+        style={{ backgroundSize: "120% 120%" }}
+      />
+      <div className="absolute top-1/4 -left-40 w-[500px] h-[500px] rounded-full bg-aurora-violet/20 blur-[140px] animate-float" />
+      <div className="absolute bottom-1/4 -right-40 w-[500px] h-[500px] rounded-full bg-neon-magenta/15 blur-[140px] animate-float-reverse" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-cyber-cyan/10 blur-[120px] animate-glow-pulse" />
+      <div className="absolute inset-0 bg-noise opacity-50" />
 
-function HistoryPanel() {
-  const history = [
-    { time: "Vừa xong", prompt: "Lookbook áo dài minimalist...", status: "done" },
-    { time: "5 phút trước", prompt: "Sản phẩm túi tote canvas...", status: "done" },
-    { time: "1 giờ trước", prompt: "Social post quán cà phê...", status: "done" },
-  ];
-  return (
-    <ul className="flex flex-col gap-2.5">
-      {history.map((h, i) => (
-        <li
-          key={i}
-          className="rounded-[8.4px] border border-mist/10 bg-obsidian p-3"
-        >
-          <div className="flex items-center justify-between text-xs text-charcoal-mute">
-            <span>{h.time}</span>
-            <span className="flex items-center gap-1 text-toxic-lime">
-              <CheckIcon className="w-3 h-3" /> done
-            </span>
-          </div>
-          <p className="text-sm text-bone-white mt-1 line-clamp-1">{h.prompt}</p>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function PromptDetailPanel() {
-  return (
-    <div className="text-sm text-ash-text">
-      <p className="text-bone-white font-medium mb-2">Prompt</p>
-      <p className="leading-relaxed">
-        Lookbook áo dài minimalist, nữ designer 25 tuổi, ánh sáng studio mềm, nền
-        be trung tính, cận mặt, tông màu đất, cinematic, 85mm.
-      </p>
-      <p className="text-bone-white font-medium mt-5 mb-2">Negative prompt</p>
-      <p>blurry, low quality, watermark, text, deformed</p>
+      {/* Vignette top + bottom — focus on gallery */}
+      <div
+        className="absolute inset-x-0 top-0 h-32 pointer-events-none"
+        style={{
+          background: "linear-gradient(to bottom, rgba(5,2,22,0.7), transparent)",
+        }}
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 h-40 pointer-events-none"
+        style={{
+          background: "linear-gradient(to top, rgba(5,2,22,0.8), transparent)",
+        }}
+      />
     </div>
   );
 }
