@@ -9,6 +9,24 @@ const navItems = [
   { label: "Docs", href: "#" },
 ];
 
+const studioDemos = [
+  {
+    src: "/hero/studio-1.png",
+    title: "Product",
+    desc: "Cinematic studio lighting, photoreal materials.",
+  },
+  {
+    src: "/hero/studio-2.png",
+    title: "Abstract",
+    desc: "Flowing forms, refined motion language.",
+  },
+  {
+    src: "/hero/studio-3.png",
+    title: "Geometric",
+    desc: "Sharp edges, precious metals, deep blacks.",
+  },
+];
+
 export default function HomePage() {
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -57,8 +75,8 @@ export default function HomePage() {
       </header>
 
       {/* Hero */}
-      <section className="relative z-10 mx-auto max-w-7xl px-6 pt-20 pb-32">
-        <div className="grid items-center gap-12 lg:grid-cols-2">
+      <section className="relative z-10 mx-auto max-w-7xl px-6 pt-16 pb-20 md:pt-20 md:pb-28">
+        <div className="grid items-center gap-10 md:grid-cols-2 md:gap-12">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-tertiary)]">
               Frontier creative studio
@@ -89,16 +107,14 @@ export default function HomePage() {
           </div>
 
           <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-[color:var(--border-subtle)] bg-[color:var(--bg-elevated)]">
-            {/* Placeholder — replace with real hero image once generated */}
             <Image
               src="/hero/hero-1.png"
               alt="Hero visual"
               fill
               priority
               className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
-            {/* If image missing, show subtle gradient fallback */}
             <div
               className="absolute inset-0 -z-10"
               style={{
@@ -107,6 +123,60 @@ export default function HomePage() {
               }}
             />
           </div>
+        </div>
+      </section>
+
+      {/* Studio showcase */}
+      <section className="relative z-10 mx-auto max-w-7xl px-6 pb-32">
+        <div className="mb-10 flex items-end justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-tertiary)]">
+              Studio
+            </p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[color:var(--text-primary)] sm:text-4xl">
+              Three languages.
+              <br />
+              One canvas.
+            </h2>
+          </div>
+          <Link
+            href="#"
+            className="hidden text-sm text-[color:var(--text-secondary)] transition-colors hover:text-[color:var(--text-primary)] md:inline-block"
+          >
+            Explore the studio →
+          </Link>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {studioDemos.map((demo) => (
+            <div
+              key={demo.title}
+              className="group relative overflow-hidden rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--bg-elevated)]"
+            >
+              <div className="relative aspect-square w-full">
+                <Image
+                  src={demo.src}
+                  alt={demo.title}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+              </div>
+              <div className="flex items-start justify-between p-5">
+                <div>
+                  <h3 className="text-sm font-medium text-[color:var(--text-primary)]">
+                    {demo.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-[color:var(--text-tertiary)]">
+                    {demo.desc}
+                  </p>
+                </div>
+                <span className="text-[color:var(--text-tertiary)] transition-colors group-hover:text-[color:var(--text-primary)]">
+                  →
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     </main>
