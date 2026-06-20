@@ -10,6 +10,16 @@ export const KEY = {
   credits: "glowstudio:credits",
   creditLog: "glowstudio:credit-log",
   seeded: "glowstudio:seeded:v1",
+  // Admin system
+  adminSession: "glowstudio:admin-session",
+  adminUsers: "glowstudio:admin-users",
+  endUsers: "glowstudio:end-users",
+  currentUser: "glowstudio:current-user",
+  userActivity: "glowstudio:user-activity",
+  auditLog: "glowstudio:audit-log",
+  systemSettings: "glowstudio:system-settings",
+  communityPosts: "glowstudio:community-posts",
+  adminSeeded: "glowstudio:admin-seeded:v1",
 } as const;
 
 function isBrowser() {

@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 
 import { CreditChip } from "@/components/ui/credit-chip";
+import { AdminLink } from "@/components/public/admin-link";
+import { HeroSlideshow } from "@/components/public/hero-slideshow";
 
 /* ---------- Data ---------- */
 
@@ -199,6 +201,7 @@ export default function HomePage() {
             </nav>
 
             <div className="flex items-center gap-2">
+              <AdminLink />
               <button className="hidden h-9 w-9 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/5 hover:text-white sm:flex">
                 <Bell className="h-4 w-4" />
               </button>
@@ -277,29 +280,7 @@ export default function HomePage() {
             </div>
 
             <div className="relative lg:col-span-6">
-              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[8.4px] border border-white/10">
-                <Image
-                  src="hero/hero-1.png"
-                  alt="Glowstudio Studio preview"
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-
-                {/* Floating model picker */}
-                <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/15 bg-black/60 px-3 py-1.5 backdrop-blur-xl">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#03e65b] shadow-[0_0_8px_#03e65b]" />
-                  <span className="text-xs font-medium">Generating · GPT Image</span>
-                </div>
-
-                {/* Floating credit chip */}
-                <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full border border-white/15 bg-black/60 px-3 py-1.5 backdrop-blur-xl">
-                  <Coins className="h-3.5 w-3.5 text-[#ffc533]" />
-                  <span className="text-xs font-medium text-white">−12 credit</span>
-                </div>
-              </div>
+              <HeroSlideshow />
             </div>
           </div>
         </section>
