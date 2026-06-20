@@ -11,17 +11,17 @@ const navItems = [
 
 const studioDemos = [
   {
-    src: "/hero/studio-1.png",
+    src: "hero/studio-1.png",
     title: "Product",
     desc: "Cinematic studio lighting, photoreal materials.",
   },
   {
-    src: "/hero/studio-2.png",
+    src: "hero/studio-2.png",
     title: "Abstract",
     desc: "Flowing forms, refined motion language.",
   },
   {
-    src: "/hero/studio-3.png",
+    src: "hero/studio-3.png",
     title: "Geometric",
     desc: "Sharp edges, precious metals, deep blacks.",
   },
@@ -108,7 +108,7 @@ export default function HomePage() {
 
           <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-[color:var(--border-subtle)] bg-[color:var(--bg-elevated)]">
             <Image
-              src="/hero/hero-1.png"
+              src="hero/hero-1.png"
               alt="Hero visual"
               fill
               priority
