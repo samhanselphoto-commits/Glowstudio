@@ -234,7 +234,7 @@ export default function LibraryPage() {
         <section className="px-6 py-10">
           <div className="mx-auto max-w-7xl">
             <div className="mb-4 text-xs text-white/40">
-              {filtered.length} ảnh trong "{folder}"{search && ` · tìm "${search}"`}
+              {`${filtered.length} ảnh trong “${folder}”${search ? ` · tìm “${search}”` : ''}`}
             </div>
 
             {view === "grid" ? (
@@ -264,7 +264,7 @@ export default function LibraryPage() {
 
             {filtered.length === 0 && (
               <div className="rounded-[8.4px] border border-dashed border-white/10 bg-white/[0.02] p-12 text-center">
-                <p className="text-sm text-white/50">Không tìm thấy ảnh nào trong "{folder}".</p>
+                <p className="text-sm text-white/50">{`Không tìm thấy ảnh nào trong “${folder}”.`}</p>
                 <Link
                   href="/studio"
                   className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-full bg-white px-4 text-xs font-semibold text-black hover:opacity-90"
