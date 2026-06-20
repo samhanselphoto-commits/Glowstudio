@@ -11,6 +11,8 @@ import {
   Building2,
 } from "lucide-react";
 
+import { CreditChip } from "@/components/ui/credit-chip";
+
 /* ---------- Data ---------- */
 
 const plans = [
@@ -145,6 +147,7 @@ export default function PricingPage() {
             </nav>
             <div className="flex items-center gap-2">
               <Link href="/login" className="hidden h-9 items-center rounded-full px-4 text-sm text-white/80 transition-colors hover:bg-white/5 hover:text-white sm:flex">Đăng nhập</Link>
+              <CreditChip className="hidden md:inline-flex" />
               <Link href="/signup" className="inline-flex h-9 items-center gap-1.5 rounded-full bg-white px-4 text-sm font-semibold text-black transition-opacity hover:opacity-90">Bắt đầu miễn phí</Link>
             </div>
           </div>
@@ -153,6 +156,10 @@ export default function PricingPage() {
         {/* Hero */}
         <section className="px-6 pt-20 pb-12 text-center">
           <div className="mx-auto max-w-3xl">
+            <div className="mb-5 flex flex-wrap items-center justify-center gap-3">
+              <span className="text-xs text-white/40">Số dư hiện tại:</span>
+              <CreditChip showLabel={false} />
+            </div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#7c5cff]/30 bg-[#7c5cff]/10 px-3 py-1 text-xs text-[#c8b8ff]">
               <Coins className="h-3 w-3" /> Giá hiển thị bằng VND · chưa bao gồm VAT
             </div>

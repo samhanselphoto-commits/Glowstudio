@@ -1,8 +1,7 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Sparkles,
   Search,
@@ -10,75 +9,99 @@ import {
   Plus,
   Download,
   Heart,
-  Wand2,
   Trash2,
   Grid3x3,
   LayoutGrid,
-  Filter,
-  Calendar,
   X,
   Settings,
-  ChevronDown,
+  AlertTriangle,
 } from "lucide-react";
 
-/* ---------- Data ---------- */
+import { CreditChip } from "@/components/ui/credit-chip";
+import { Modal } from "@/components/ui/modal";
+import { LibraryCard } from "@/components/library/library-card";
+import { toast } from "@/hooks/use-toast";
+import { useLibrary } from "@/hooks/use-library";
+import { useMounted } from "@/hooks/use-mounted";
+import { cn } from "@/lib/cn";
+import { formatThousand } from "@/lib/format";
 
-type LibItem = {
-  id: number;
-  src: string;
-  model: string;
-  modelColor: string;
-  prompt: string;
-  date: string;
-  aspect: string;
-  credit: number;
-  private: boolean;
-  folder: string;
-};
-
-const items: LibItem[] = [
-  { id: 1, src: "hero/studio-1.png", model: "GPT Image", modelColor: "bg-[#d25fff]/15 text-[#d25fff]", prompt: "Bento UI dashboard cho SaaS productivity, soft gradient tím", date: "20/06/2026", aspect: "1:1", credit: 12, private: true, folder: "Sản phẩm" },
-  { id: 2, src: "hero/studio-2.png", model: "NANO BANANA", modelColor: "bg-[#d25fff]/15 text-[#d25fff]", prompt: "Editorial fashion, cinematic teal & amber grading", date: "20/06/2026", aspect: "4:3", credit: 10, private: true, folder: "Lookbook" },
-  { id: 3, src: "hero/studio-3.png", model: "Flux Pro", modelColor: "bg-[#d25fff]/15 text-[#d25fff]", prompt: "Sản phẩm skincare trên marble trắng, soft shadow", date: "19/06/2026", aspect: "1:1", credit: 15, private: false, folder: "Sản phẩm" },
-  { id: 4, src: "hero/studio-1.png", model: "Ideogram", modelColor: "bg-[#d25fff]/15 text-[#d25fff]", prompt: "Poster quảng cáo Tết 2026 với typography tiếng Việt", date: "18/06/2026", aspect: "4:3", credit: 8, private: true, folder: "Marketing" },
-  { id: 5, src: "hero/studio-2.png", model: "Zturbo", modelColor: "bg-[#03e65b]/15 text-[#03e65b]", prompt: "Moodboard concept quán cà phê Hà Nội, vintage gạch bông", date: "17/06/2026", aspect: "1:1", credit: 3, private: true, folder: "Moodboard" },
-  { id: 6, src: "hero/studio-3.png", model: "Recraft v3", modelColor: "bg-[#ff3386]/15 text-[#ff3386]", prompt: "Logo + brand guideline cho studio nhỏ, vector sạch", date: "15/06/2026", aspect: "1:1", credit: 9, private: false, folder: "Branding" },
-  { id: 7, src: "hero/studio-1.png", model: "NANO BANANA", modelColor: "bg-[#d25fff]/15 text-[#d25fff]", prompt: "Minh họa trẻ em đọc sách, màu nước ấm, vintage", date: "12/06/2026", aspect: "4:3", credit: 10, private: true, folder: "Lookbook" },
-  { id: 8, src: "hero/studio-2.png", model: "GPT Image", modelColor: "bg-[#d25fff]/15 text-[#d25fff]", prompt: "Mockup tai nghe bluetooth trên nền pastel, soft 3D", date: "10/06/2026", aspect: "1:1", credit: 12, private: true, folder: "Sản phẩm" },
-  { id: 9, src: "hero/studio-3.png", model: "Flux Pro", modelColor: "bg-[#d25fff]/15 text-[#d25fff]", prompt: "Travel editorial Vịnh Hạ Long, drone golden hour", date: "08/06/2026", aspect: "16:9", credit: 15, private: true, folder: "Marketing" },
-  { id: 10, src: "hero/studio-1.png", model: "Zturbo", modelColor: "bg-[#03e65b]/15 text-[#03e65b]", prompt: "Quick test bảng màu gradient tím sang hồng", date: "05/06/2026", aspect: "1:1", credit: 3, private: true, folder: "Moodboard" },
-  { id: 11, src: "hero/studio-2.png", model: "Ideogram", modelColor: "bg-[#d25fff]/15 text-[#d25fff]", prompt: "Bảng hiệu quán ăn tên Việt, typography đặc trưng", date: "02/06/2026", aspect: "4:3", credit: 8, private: false, folder: "Branding" },
-  { id: 12, src: "hero/studio-3.png", model: "NANO BANANA", modelColor: "bg-[#d25fff]/15 text-[#d25fff]", prompt: "Chân dung nghệ thuật, ánh sáng Rembrandt", date: "01/06/2026", aspect: "3:4", credit: 10, private: true, folder: "Lookbook" },
-];
-
-const folders = ["Tất cả", "Sản phẩm", "Lookbook", "Marketing", "Moodboard", "Branding"];
+const folders = ["Tất cả", "Chung", "Sản phẩm", "Lookbook", "Marketing", "Moodboard", "Branding"];
 
 export default function LibraryPage() {
+  const mounted = useMounted();
+  const { items, hydrated, removeMany, clear, seedDemo } = useLibrary();
+
   const [view, setView] = useState<"grid" | "masonry">("grid");
   const [folder, setFolder] = useState("Tất cả");
-  const [selected, setSelected] = useState<Set<number>>(new Set());
   const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const filtered = useMemo(() => {
     let list = items;
     if (folder !== "Tất cả") list = list.filter((i) => i.folder === folder);
     if (search) {
       const q = search.toLowerCase();
-      list = list.filter((i) => i.prompt.toLowerCase().includes(q) || i.model.toLowerCase().includes(q));
+      list = list.filter(
+        (i) =>
+          i.prompt.toLowerCase().includes(q) ||
+          i.model.toLowerCase().includes(q) ||
+          i.folder.toLowerCase().includes(q)
+      );
     }
     return list;
-  }, [folder, search]);
+  }, [items, folder, search]);
 
-  const toggleSelect = (id: number) => {
+  const totalCreditUsed = items.reduce((s, i) => s + i.credit, 0);
+  const privateCount = items.filter((i) => i.private).length;
+
+  function toggleSelect(id: string) {
     setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
-  };
+  }
 
-  const totalCreditUsed = items.reduce((s, i) => s + i.credit, 0);
+  function handleDownloadSelected() {
+    if (selected.size === 0) return;
+    const list = items.filter((i) => selected.has(i.id));
+    list.forEach((item, i) => {
+      // Stagger downloads so browser doesn't block
+      setTimeout(() => {
+        const a = document.createElement("a");
+        a.href = item.src.startsWith("data:") ? item.src : item.src;
+        a.download = `glowstudio-${item.id}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }, i * 150);
+    });
+    toast({ type: "success", message: `Đang tải ${list.length} ảnh` });
+  }
+
+  function handleDeleteSelected() {
+    if (selected.size === 0) return;
+    const ids = Array.from(selected);
+    removeMany(ids);
+    setSelected(new Set());
+    toast({ type: "success", message: `Đã xoá ${ids.length} ảnh khỏi Library` });
+  }
+
+  function handleClearAll() {
+    clear();
+    setSelected(new Set());
+    toast({ type: "success", message: "Đã xoá tất cả ảnh" });
+    setSettingsOpen(false);
+  }
+
+  function handleSeedDemo() {
+    seedDemo();
+    toast({ type: "success", message: "Đã seed 12 ảnh demo vào Library" });
+    setSettingsOpen(false);
+  }
 
   return (
     <div className="relative min-h-screen bg-[#000000] text-white">
@@ -103,11 +126,7 @@ export default function LibraryPage() {
               <Link href="/pricing" className="rounded-full px-4 py-1.5 text-sm text-white/70 transition-colors hover:bg-white/5 hover:text-white">Pricing</Link>
             </nav>
             <div className="flex items-center gap-3">
-              <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs sm:flex">
-                <Coins className="h-3.5 w-3.5 text-[#ffc533]" />
-                <span className="text-white/60">Còn</span>
-                <span className="font-semibold">1,488</span>
-              </div>
+              <CreditChip className="hidden sm:inline-flex" />
               <Link
                 href="/studio"
                 className="inline-flex h-9 items-center gap-1.5 rounded-full bg-white px-4 text-sm font-semibold text-black transition-opacity hover:opacity-90"
@@ -130,11 +149,21 @@ export default function LibraryPage() {
                   Thư viện của bạn.
                 </h1>
                 <p className="mt-3 text-white/55">
-                  {items.length} ảnh · đã dùng {totalCreditUsed} credit · {items.filter((i) => i.private).length} riêng tư
+                  {mounted && hydrated ? (
+                    <>
+                      {items.length} ảnh · đã dùng {formatThousand(totalCreditUsed)} credit · {privateCount} riêng tư
+                    </>
+                  ) : (
+                    <span className="opacity-50">Đang tải…</span>
+                  )}
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <button className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 text-xs hover:bg-white/[0.08]">
+                <button
+                  onClick={() => setSettingsOpen(true)}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 text-xs hover:bg-white/[0.08]"
+                  type="button"
+                >
                   <Settings className="h-3.5 w-3.5" /> Cài đặt
                 </button>
                 <Link
@@ -152,7 +181,6 @@ export default function LibraryPage() {
         <section className="sticky top-16 z-20 border-y border-white/10 bg-[#0a0a0a]/85 backdrop-blur-xl">
           <div className="mx-auto max-w-7xl px-6 py-3">
             <div className="flex flex-wrap items-center gap-3">
-              {/* Search */}
               <div className="relative flex-1 min-w-[200px] max-w-sm">
                 <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/40" />
                 <input
@@ -164,36 +192,38 @@ export default function LibraryPage() {
                 />
               </div>
 
-              {/* Folders */}
               <div className="flex items-center gap-1.5 overflow-x-auto">
                 {folders.map((f) => (
                   <button
                     key={f}
                     onClick={() => setFolder(f)}
-                    className={`shrink-0 rounded-full px-3 py-1.5 text-xs transition-colors ${
+                    type="button"
+                    className={cn(
+                      "shrink-0 rounded-full px-3 py-1.5 text-xs transition-colors",
                       folder === f
                         ? "bg-white text-black font-semibold"
                         : "border border-white/10 bg-white/[0.03] text-white/60 hover:border-white/20 hover:text-white"
-                    }`}
+                    )}
                   >
                     {f}
                   </button>
                 ))}
               </div>
 
-              {/* View toggle */}
               <div className="ml-auto flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] p-0.5">
                 <button
                   onClick={() => setView("grid")}
-                  className={`rounded-full p-1.5 ${view === "grid" ? "bg-[#7c5cff] text-white" : "text-white/60"}`}
+                  className={cn("rounded-full p-1.5", view === "grid" ? "bg-[#7c5cff] text-white" : "text-white/60")}
                   title="Grid"
+                  type="button"
                 >
                   <LayoutGrid className="h-3.5 w-3.5" />
                 </button>
                 <button
                   onClick={() => setView("masonry")}
-                  className={`rounded-full p-1.5 ${view === "masonry" ? "bg-[#7c5cff] text-white" : "text-white/60"}`}
+                  className={cn("rounded-full p-1.5", view === "masonry" ? "bg-[#7c5cff] text-white" : "text-white/60")}
                   title="Masonry"
+                  type="button"
                 >
                   <Grid3x3 className="h-3.5 w-3.5" />
                 </button>
@@ -210,18 +240,33 @@ export default function LibraryPage() {
                 Đã chọn <span className="font-semibold">{selected.size}</span> ảnh
               </span>
               <div className="flex items-center gap-2">
-                <button className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-3 text-xs hover:bg-white/[0.08]">
+                <button
+                  onClick={handleDownloadSelected}
+                  type="button"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-3 text-xs hover:bg-white/[0.08]"
+                >
                   <Download className="h-3 w-3" /> Tải về
                 </button>
-                <button className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-3 text-xs hover:bg-white/[0.08]">
+                <button
+                  type="button"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-3 text-xs hover:bg-white/[0.08]"
+                  title="Tính năng đang phát triển"
+                  onClick={() => toast({ type: "info", message: "Đăng Community sẽ có trong phiên bản kế tiếp" })}
+                >
                   <Heart className="h-3 w-3" /> Đăng Community
                 </button>
-                <button className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#ff5d4b]/30 bg-[#ff5d4b]/10 px-3 text-xs text-[#ff5d4b] hover:bg-[#ff5d4b]/20">
+                <button
+                  onClick={handleDeleteSelected}
+                  type="button"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#ff5d4b]/30 bg-[#ff5d4b]/10 px-3 text-xs text-[#ff9a8a] hover:bg-[#ff5d4b]/20"
+                >
                   <Trash2 className="h-3 w-3" /> Xóa
                 </button>
                 <button
                   onClick={() => setSelected(new Set())}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/5"
+                  type="button"
+                  aria-label="Bỏ chọn"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -234,10 +279,21 @@ export default function LibraryPage() {
         <section className="px-6 py-10">
           <div className="mx-auto max-w-7xl">
             <div className="mb-4 text-xs text-white/40">
-              {`${filtered.length} ảnh trong “${folder}”${search ? ` · tìm “${search}”` : ''}`}
+              {mounted && hydrated ? (
+                <>
+                  {filtered.length} ảnh trong <span className="text-white/70">“{folder}”</span>
+                  {search && <> · tìm <span className="text-white/70">“{search}”</span></>}
+                </>
+              ) : (
+                "Đang tải…"
+              )}
             </div>
 
-            {view === "grid" ? (
+            {!mounted || !hydrated ? (
+              <SkeletonGrid view={view} />
+            ) : filtered.length === 0 ? (
+              <EmptyState folder={folder} hasAny={items.length > 0} />
+            ) : view === "grid" ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filtered.map((item) => (
                   <LibraryCard
@@ -259,18 +315,6 @@ export default function LibraryPage() {
                     masonry
                   />
                 ))}
-              </div>
-            )}
-
-            {filtered.length === 0 && (
-              <div className="rounded-[8.4px] border border-dashed border-white/10 bg-white/[0.02] p-12 text-center">
-                <p className="text-sm text-white/50">{`Không tìm thấy ảnh nào trong “${folder}”.`}</p>
-                <Link
-                  href="/studio"
-                  className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-full bg-white px-4 text-xs font-semibold text-black hover:opacity-90"
-                >
-                  <Plus className="h-3.5 w-3.5" /> Tạo ảnh mới
-                </Link>
               </div>
             )}
           </div>
@@ -296,101 +340,100 @@ export default function LibraryPage() {
           </div>
         </footer>
       </div>
+
+      {/* Settings modal */}
+      <Modal
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        title="Cài đặt Library"
+        description="Quản lý dữ liệu demo và reset library."
+      >
+        <div className="space-y-3">
+          <div className="rounded-md border border-white/10 bg-white/[0.02] p-3 text-xs text-white/55">
+            Hiện có <span className="font-semibold text-white">{items.length}</span> ảnh trong library
+            {privateCount > 0 && <> · <span className="font-semibold text-white">{privateCount}</span> riêng tư</>}.
+            Dữ liệu lưu trong trình duyệt (localStorage).
+          </div>
+
+          <button
+            onClick={handleSeedDemo}
+            type="button"
+            className="flex w-full items-center justify-between rounded-md border border-[#7c5cff]/30 bg-[#7c5cff]/[0.08] px-3 py-2.5 text-sm transition-colors hover:bg-[#7c5cff]/[0.14]"
+          >
+            <span>
+              <span className="font-semibold text-white">Seed dữ liệu demo</span>
+              <div className="text-[11px] text-white/55">Thêm 12 ảnh mẫu vào library</div>
+            </span>
+            <Plus className="h-4 w-4 text-[#c8b8ff]" />
+          </button>
+
+          <button
+            onClick={handleClearAll}
+            type="button"
+            className="flex w-full items-center justify-between rounded-md border border-[#ff5d4b]/30 bg-[#ff5d4b]/[0.08] px-3 py-2.5 text-sm transition-colors hover:bg-[#ff5d4b]/[0.14]"
+          >
+            <span>
+              <span className="font-semibold text-[#ff9a8a]">Xoá tất cả</span>
+              <div className="text-[11px] text-white/55">Library trống — bạn có thể seed lại sau</div>
+            </span>
+            <AlertTriangle className="h-4 w-4 text-[#ff9a8a]" />
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
 
-function LibraryCard({
-  item,
-  selected,
-  onSelect,
-  masonry,
-}: {
-  item: LibItem;
-  selected: boolean;
-  onSelect: () => void;
-  masonry?: boolean;
-}) {
-  const aspect =
-    item.aspect === "1:1" ? "1/1" : item.aspect === "4:3" ? "4/3" : item.aspect === "3:4" ? "3/4" : "16/9";
-
-  return (
-    <div
-      className={
-        "group relative overflow-hidden rounded-[8.4px] border bg-black transition-colors " +
-        (selected ? "border-[#7c5cff]" : "border-white/10 hover:border-white/30") +
-        (masonry ? " mb-4 break-inside-avoid" : "")
-      }
-    >
-      <div
-        className="relative w-full cursor-pointer"
-        style={{ aspectRatio: aspect }}
-        onClick={onSelect}
-      >
-        <Image
-          src={item.src}
-          alt={item.prompt}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-        />
-
-        {/* Selected check */}
-        <div
-          className={`absolute left-3 top-3 flex h-5 w-5 items-center justify-center rounded-md border transition-all ${
-            selected ? "border-[#7c5cff] bg-[#7c5cff]" : "border-white/40 bg-black/40 backdrop-blur-md"
-          }`}
-        >
-          {selected && (
-            <svg viewBox="0 0 12 12" className="h-3 w-3 text-white">
-              <path d="M2 6l3 3 5-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          )}
-        </div>
-
-        {/* Private badge */}
-        {item.private && (
-          <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full border border-white/15 bg-black/60 px-2 py-0.5 text-[10px] backdrop-blur-md">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#ffc533]" /> Riêng tư
-          </div>
-        )}
-
-        {/* Hover actions */}
-        <div className="absolute inset-x-0 bottom-0 flex translate-y-full items-center justify-between gap-2 bg-gradient-to-t from-black/90 to-transparent p-3 transition-transform group-hover:translate-y-0">
-          <div className="flex items-center gap-1.5">
-            <Link
-              href="/studio"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20"
-              title="Re-use prompt"
-            >
-              <Wand2 className="h-3.5 w-3.5" />
-            </Link>
-            <button
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20"
-              title="Tải về"
-            >
-              <Download className="h-3.5 w-3.5" />
-            </button>
-          </div>
-          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${item.modelColor}`}>
-            {item.model}
-          </span>
-        </div>
+function SkeletonGrid({ view }: { view: "grid" | "masonry" }) {
+  if (view === "grid") {
+    return (
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="aspect-square animate-pulse rounded-[8.4px] bg-white/[0.04]" />
+        ))}
       </div>
+    );
+  }
+  return (
+    <div className="columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div
+          key={i}
+          className="mb-4 break-inside-avoid animate-pulse rounded-[8.4px] bg-white/[0.04]"
+          style={{ height: `${180 + (i % 3) * 60}px` }}
+        />
+      ))}
+    </div>
+  );
+}
 
-      {!masonry && (
-        <div className="p-3">
-          <p className="line-clamp-1 text-xs text-white/70">{item.prompt}</p>
-          <div className="mt-2 flex items-center justify-between text-[10px] text-white/40">
-            <span className="inline-flex items-center gap-1">
-              <Calendar className="h-3 w-3" /> {item.date}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Coins className="h-3 w-3 text-[#ffc533]" /> −{item.credit}
-            </span>
-          </div>
-        </div>
-      )}
+function EmptyState({ folder, hasAny }: { folder: string; hasAny: boolean }) {
+  return (
+    <div className="rounded-[8.4px] border border-dashed border-white/10 bg-white/[0.02] p-12 text-center">
+      <p className="text-sm text-white/50">
+        {hasAny
+          ? `Không tìm thấy ảnh nào trong “${folder}”.`
+          : "Library của bạn đang trống."}
+      </p>
+      <p className="mt-2 text-xs text-white/30">
+        Tạo ảnh đầu tiên trong Studio, hoặc vào Cài đặt để seed dữ liệu demo.
+      </p>
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+        <Link
+          href="/studio"
+          className="inline-flex h-9 items-center gap-1.5 rounded-full bg-white px-4 text-xs font-semibold text-black hover:opacity-90"
+        >
+          <Plus className="h-3.5 w-3.5" /> Tạo ảnh mới
+        </Link>
+        {!hasAny && (
+          <Link
+            href="/community"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-4 text-xs hover:bg-white/[0.08]"
+          >
+            Khám phá Community
+          </Link>
+        )}
+      </div>
     </div>
   );
 }

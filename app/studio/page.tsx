@@ -1,128 +1,269 @@
 "use client";
 
-import Image from "next/image";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useState } from "react";
 import {
   Sparkles,
-  ArrowRight,
   Coins,
-  Settings2,
   Brush,
   Maximize2,
-  Upload,
-  Image as ImageIcon,
-  Shuffle,
-  Download,
-  Heart,
-  Wand2,
-  Sliders,
+  Settings2,
   ChevronDown,
-  Play,
-  History,
-  X,
-  Plus,
   Check,
+  Upload,
+  Shuffle,
+  Sliders,
+  History,
 } from "lucide-react";
 
-/* ---------- Data ---------- */
+import { CreditChip } from "@/components/ui/credit-chip";
+import { Modal } from "@/components/ui/modal";
+import { PromptBar } from "@/components/studio/prompt-bar";
+import { ReferenceUploader } from "@/components/studio/reference-uploader";
+import { ResultGrid } from "@/components/studio/result-grid";
+import { RecentGenerations } from "@/components/studio/recent-generations";
+import { InpaintModal } from "@/components/studio/inpaint-modal";
 
-const modelOptions = [
-  {
-    name: "GPT Image",
-    credit: 12,
-    tag: "Pro",
-    tagColor: "bg-[#d25fff]/15 text-[#d25fff]",
-    desc: "Hiểu prompt phức tạp, text trong ảnh cực tốt",
-  },
-  {
-    name: "NANO BANANA",
-    credit: 10,
-    tag: "Pro",
-    tagColor: "bg-[#d25fff]/15 text-[#d25fff]",
-    desc: "Editorial, chân dung, cinematic color",
-  },
-  {
-    name: "Flux Pro",
-    credit: 15,
-    tag: "Pro",
-    tagColor: "bg-[#d25fff]/15 text-[#d25fff]",
-    desc: "Flagship quality, ảnh sản phẩm & quảng cáo",
-  },
-  {
-    name: "Zturbo",
-    credit: 3,
-    tag: "Free",
-    tagColor: "bg-[#03e65b]/15 text-[#03e65b]",
-    desc: "Tốc độ cao, giá rẻ, phù hợp draft",
-  },
-  {
-    name: "Ideogram",
-    credit: 8,
-    tag: "Pro",
-    tagColor: "bg-[#d25fff]/15 text-[#d25fff]",
-    desc: "Typography, poster có chữ Việt có dấu",
-  },
-  {
-    name: "Recraft v3",
-    credit: 9,
-    tag: "Beta",
-    tagColor: "bg-[#ff3386]/15 text-[#ff3386]",
-    desc: "Vector & brand system, xuất SVG",
-  },
-];
+import { useCredits } from "@/hooks/use-credits";
+import { useGenerations } from "@/hooks/use-generations";
+import { useLibrary } from "@/hooks/use-library";
+import { useMounted } from "@/hooks/use-mounted";
+import { toast } from "@/hooks/use-toast";
 
-const aspectRatios = ["1:1", "4:3", "3:4", "16:9", "9:16"];
+import { MODEL_OPTIONS, getModel, getStyle, STYLE_PRESETS } from "@/lib/models";
+import { streamVariations, composePrompt } from "@/lib/generate";
+import { isAspect } from "@/lib/format";
+import { isModelName, type AspectRatio, type LibraryItem, type ModelName, type Variation } from "@/lib/types";
+import { cn } from "@/lib/cn";
 
-const stylePresets = [
-  { name: "Cinematic", color: "#7c5cff" },
-  { name: "Editorial", color: "#d25fff" },
-  { name: "Bento 3D", color: "#03e65b" },
-  { name: "Vietnamese street", color: "#ffc533" },
-  { name: "Vintage film", color: "#ff5d4b" },
-  { name: "Studio minimal", color: "#33d0ff" },
-];
-
-const recentGenerations = [
-  { src: "hero/studio-1.png", model: "GPT Image", time: "2 phút trước" },
-  { src: "hero/studio-2.png", model: "NANO BANANA", time: "8 phút trước" },
-  { src: "hero/studio-3.png", model: "Flux Pro", time: "1 giờ trước" },
-];
+/* ---------- Page (no useSearchParams — read window.location directly) ---------- */
 
 export default function StudioPage() {
-  const [model, setModel] = useState(modelOptions[0]);
-  const [aspect, setAspect] = useState("1:1");
-  const [style, setStyle] = useState("Cinematic");
+  const mounted = useMounted();
+  const { balance, hydrated: creditsReady, deduct } = useCredits();
+  const { add: addGeneration } = useGenerations();
+  const { addMany: addManyToLibrary, add: addToLibrary, update: updateLibrary } = useLibrary();
+
+  // ---------- Form state ----------
   const [prompt, setPrompt] = useState(
     "Bento UI dashboard cho SaaS, soft gradient tím, 3D clay, ánh sáng studio"
   );
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [model, setModel] = useState<ModelName>("GPT Image");
+  const [aspect, setAspect] = useState<AspectRatio>("1:1");
+  const [style, setStyle] = useState<string>("Cinematic");
+  const [refs, setRefs] = useState<string[]>([]);
   const [showModelPicker, setShowModelPicker] = useState(false);
-  const [variations, setVariations] = useState<string[]>([]);
-  const [activeVariation, setActiveVariation] = useState<number | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const handleGenerate = () => {
-    if (isGenerating) return;
-    setIsGenerating(true);
+  // ---------- Generation state ----------
+  const [variations, setVariations] = useState<Variation[]>([]);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [inpaintOpen, setInpaintOpen] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+
+  // ---------- URL prefill on mount (read window.location, not useSearchParams) ----------
+  const urlAppliedRef = useRef(false);
+  useEffect(() => {
+    if (urlAppliedRef.current) return;
+    if (typeof window === "undefined") return;
+    urlAppliedRef.current = true;
+    const params = new URLSearchParams(window.location.search);
+    const p = params.get("prompt");
+    const m = params.get("model");
+    const a = params.get("aspect");
+    let changed = false;
+    if (p) {
+      setPrompt(p);
+      changed = true;
+    }
+    if (m && isModelName(m)) {
+      setModel(m);
+      changed = true;
+    }
+    if (a && isAspect(a)) {
+      setAspect(a);
+      changed = true;
+    }
+    if (changed && window.history?.replaceState) {
+      const url = new URL(window.location.href);
+      url.search = "";
+      window.history.replaceState({}, "", url.toString());
+    }
+  }, []);
+
+  const modelMeta = getModel(model);
+  const styleMeta = getStyle(style);
+  const totalCost = modelMeta.credit * 4;
+  const enoughCredits = balance >= totalCost;
+  const validPrompt = prompt.trim().length > 0;
+
+  // ---------- Generate ----------
+  const handleGenerate = useCallback(async () => {
+    if (busy) return;
+    if (!validPrompt) {
+      toast({ type: "error", message: "Vui lòng nhập prompt" });
+      return;
+    }
+    if (!enoughCredits) {
+      toast({
+        type: "error",
+        message: `Không đủ credit — cần ${totalCost}, còn ${balance}`,
+      });
+      return;
+    }
+
+    // Reset
     setVariations([]);
-    setActiveVariation(null);
+    setActiveIndex(null);
+    setBusy(true);
 
-    // Simulate streaming: 4 variations arrive one by one
-    const seq = ["hero/studio-1.png", "hero/studio-2.png", "hero/studio-3.png", "hero/studio-1.png"];
-    seq.forEach((src, i) => {
-      setTimeout(() => {
-        setVariations((v) => [...v, src]);
-        if (i === seq.length - 1) {
-          setIsGenerating(false);
-          setActiveVariation(0);
+    const abort = new AbortController();
+    abortRef.current?.abort();
+    abortRef.current = abort;
+
+    const finalPrompt = composePrompt(prompt, style);
+    const genId = `gen_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+    const collected: Variation[] = [];
+
+    try {
+      const stream = streamVariations(
+        { prompt: finalPrompt, model, aspect, style, refs, count: 4 },
+        abort.signal
+      );
+      while (true) {
+        const { value, done } = await stream.next();
+        if (done) break;
+        if (value) {
+          collected.push(value);
+          setVariations([...collected]);
         }
-      }, 600 + i * 700);
-    });
-  };
+      }
+
+      // Done — persist
+      const success = deduct(totalCost, `Generate với ${model}`);
+      if (!success) {
+        toast({ type: "error", message: "Không trừ được credit" });
+      }
+      addGeneration({
+        id: genId,
+        prompt: finalPrompt,
+        model,
+        aspect,
+        style,
+        refs: refs.length > 0 ? refs : undefined,
+        variations: collected,
+        totalCredit: totalCost,
+        createdAt: Date.now(),
+      });
+
+      const items: LibraryItem[] = collected.map((v, i) => ({
+        id: `${genId}:${v.id}`,
+        src: v.src,
+        prompt: finalPrompt,
+        model,
+        aspect,
+        credit: modelMeta.credit,
+        folder: "Chung",
+        private: true,
+        liked: false,
+        createdAt: Date.now(),
+        generationId: genId,
+        variationId: v.id,
+        source: "generate",
+        // Vary createdAt slightly so order is stable
+        ...(i > 0 ? {} : {}),
+      }));
+      addManyToLibrary(items);
+
+      setActiveIndex(0);
+      toast({
+        type: "credit",
+        message: `Đã generate 4 variations · −${totalCost} credit · đã lưu Library`,
+      });
+    } catch (err) {
+      if ((err as { name?: string })?.name === "AbortError") {
+        toast({ type: "info", message: "Đã huỷ generation" });
+      } else {
+        console.error(err);
+        toast({ type: "error", message: "Generation thất bại, thử lại" });
+      }
+    } finally {
+      setBusy(false);
+      abortRef.current = null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [busy, validPrompt, enoughCredits, totalCost, balance, prompt, style, model, aspect, refs, deduct]);
+
+  // ---------- Variation helpers ----------
+  function toggleLikeVariation(variationId: string) {
+    setVariations((prev) =>
+      prev.map((v) => (v.id === variationId ? { ...v, liked: !v.liked } : v))
+    );
+  }
+
+  function downloadVariation(v: Variation) {
+    const a = document.createElement("a");
+    a.href = v.src;
+    a.download = `glowstudio-${v.id}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  function handleUpscale() {
+    if (activeIndex == null) return;
+    const v = variations[activeIndex];
+    if (!v) return;
+    const newItem: LibraryItem = {
+      id: `up_${v.id}`,
+      src: v.src,
+      prompt: prompt,
+      model,
+      aspect,
+      credit: 8,
+      folder: "Chung",
+      private: true,
+      liked: false,
+      createdAt: Date.now(),
+      source: "upscale",
+    };
+    addToLibrary(newItem);
+    toast({ type: "success", message: "Đã upscale (mock) — thêm vào Library · −8 credit" });
+  }
+
+  function handleInpaintApply(maskDataURL: string) {
+    if (activeIndex == null) return;
+    const v = variations[activeIndex];
+    if (!v) return;
+    // For the mockup, the mask is saved as its own library item (dataURL).
+    // A real implementation would POST the original + mask to the AI endpoint.
+    const newItem: LibraryItem = {
+      id: `inp_${v.id}`,
+      src: maskDataURL,
+      prompt: `${prompt} [inpainted]`,
+      model,
+      aspect,
+      credit: 6,
+      folder: "Chung",
+      private: true,
+      liked: false,
+      createdAt: Date.now(),
+      source: "inpaint",
+    };
+    addToLibrary(newItem);
+    setInpaintOpen(false);
+  }
+
+  function handleReroll() {
+    handleGenerate();
+  }
+
+  const activeVariation: Variation | null =
+    activeIndex != null ? variations[activeIndex] ?? null : null;
 
   return (
     <div className="relative min-h-screen bg-[#000000] text-white">
-      {/* Aurora ambient */}
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute top-[-10%] left-[20%] h-[500px] w-[800px] rounded-full bg-[#7c5cff]/15 blur-[140px]" />
       </div>
@@ -154,12 +295,7 @@ export default function StudioPage() {
             </nav>
 
             <div className="flex items-center gap-3">
-              <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs sm:flex">
-                <Coins className="h-3.5 w-3.5 text-[#ffc533]" />
-                <span className="text-white/60">Còn</span>
-                <span className="font-semibold">1,488</span>
-                <span className="text-white/40">credit</span>
-              </div>
+              <CreditChip className="hidden sm:inline-flex" />
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#7c5cff] to-[#d25fff] text-xs font-semibold">
                 LN
               </div>
@@ -171,14 +307,21 @@ export default function StudioPage() {
         <div className="mx-auto grid max-w-[1600px] gap-6 px-6 py-6 lg:grid-cols-12">
           {/* ---- Left: controls ---- */}
           <aside className="space-y-4 lg:col-span-4 xl:col-span-3">
-            {/* Prompt */}
+            {/* Prompt textarea */}
             <div className="rounded-[8.4px] border border-white/10 bg-black p-5">
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
                   Prompt
                 </h3>
-                <button className="flex items-center gap-1 text-xs text-white/50 transition-colors hover:text-white">
-                  <Shuffle className="h-3 w-3" /> Surprise me
+                <button
+                  onClick={() => {
+                    setPrompt(""); // small UX nicety
+                    // Re-set after a tick? No — just empty + focus
+                  }}
+                  className="text-[11px] text-white/30 transition-colors hover:text-white/60"
+                  type="button"
+                >
+                  Xoá
                 </button>
               </div>
               <textarea
@@ -190,7 +333,11 @@ export default function StudioPage() {
               />
               <div className="mt-2 flex items-center justify-between text-[11px] text-white/40">
                 <span>{prompt.length} ký tự</span>
-                <span>Tiếng Việt có dấu OK</span>
+                {styleMeta && (
+                  <span className="rounded-full bg-[#7c5cff]/10 px-2 py-0.5 text-[10px] text-[#c8b8ff]">
+                    + {styleMeta.hint}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -202,42 +349,43 @@ export default function StudioPage() {
               <button
                 onClick={() => setShowModelPicker((s) => !s)}
                 className="flex w-full items-center justify-between rounded-md border border-white/10 bg-white/[0.03] p-3 text-left transition-colors hover:border-white/20"
+                type="button"
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{model.name}</span>
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${model.tagColor}`}>
-                      {model.tag}
+                    <span className="text-sm font-medium">{modelMeta.name}</span>
+                    <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", modelMeta.tagColor)}>
+                      {modelMeta.tag}
                     </span>
                   </div>
-                  <div className="mt-0.5 text-xs text-white/50">{model.desc}</div>
+                  <div className="mt-0.5 text-xs text-white/50">{modelMeta.desc}</div>
                 </div>
-                <ChevronDown className={`h-4 w-4 text-white/40 transition-transform ${showModelPicker ? "rotate-180" : ""}`} />
+                <ChevronDown className={cn("h-4 w-4 text-white/40 transition-transform", showModelPicker && "rotate-180")} />
               </button>
 
               {showModelPicker && (
                 <div className="mt-2 space-y-1 rounded-md border border-white/10 bg-[#0a0a0a] p-1">
-                  {modelOptions.map((m) => (
+                  {MODEL_OPTIONS.map((m) => (
                     <button
                       key={m.name}
                       onClick={() => {
-                        setModel(m);
+                        setModel(m.name);
                         setShowModelPicker(false);
                       }}
-                      className={`flex w-full items-start justify-between gap-3 rounded px-2.5 py-2 text-left transition-colors ${
-                        m.name === model.name ? "bg-[#7c5cff]/10" : "hover:bg-white/5"
-                      }`}
+                      type="button"
+                      className={cn(
+                        "flex w-full items-start justify-between gap-3 rounded px-2.5 py-2 text-left transition-colors",
+                        m.name === model ? "bg-[#7c5cff]/10" : "hover:bg-white/5"
+                      )}
                     >
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium">{m.name}</span>
-                          <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${m.tagColor}`}>
+                          <span className={cn("rounded-full px-1.5 py-0.5 text-[10px] font-semibold", m.tagColor)}>
                             {m.tag}
                           </span>
                         </div>
-                        <div className="mt-0.5 truncate text-[11px] text-white/40">
-                          {m.desc}
-                        </div>
+                        <div className="mt-0.5 truncate text-[11px] text-white/40">{m.desc}</div>
                       </div>
                       <div className="shrink-0 text-right text-[11px] text-white/60">
                         <div className="flex items-center gap-1">
@@ -257,15 +405,17 @@ export default function StudioPage() {
                 Aspect
               </h3>
               <div className="grid grid-cols-5 gap-1.5">
-                {aspectRatios.map((a) => (
+                {(["1:1", "4:3", "3:4", "16:9", "9:16"] as const).map((a) => (
                   <button
                     key={a}
                     onClick={() => setAspect(a)}
-                    className={`rounded-md border py-2 text-xs transition-colors ${
+                    type="button"
+                    className={cn(
+                      "rounded-md border py-2 text-xs transition-colors",
                       aspect === a
                         ? "border-[#7c5cff]/60 bg-[#7c5cff]/10 text-white"
                         : "border-white/10 bg-white/[0.02] text-white/60 hover:border-white/20"
-                    }`}
+                    )}
                   >
                     {a}
                   </button>
@@ -276,26 +426,26 @@ export default function StudioPage() {
             {/* Style ref */}
             <div className="rounded-[8.4px] border border-white/10 bg-black p-5">
               <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
-                Style ref
+                Style
               </h3>
               <div className="grid grid-cols-3 gap-2">
-                {stylePresets.map((s) => (
+                {STYLE_PRESETS.map((s) => (
                   <button
                     key={s.name}
                     onClick={() => setStyle(s.name)}
-                    className={`group relative overflow-hidden rounded-md border p-2 text-left transition-colors ${
+                    type="button"
+                    className={cn(
+                      "group relative overflow-hidden rounded-md border p-2 text-left transition-colors",
                       style === s.name
                         ? "border-[#7c5cff]/60 bg-[#7c5cff]/10"
                         : "border-white/10 bg-white/[0.02] hover:border-white/20"
-                    }`}
+                    )}
                   >
                     <div
                       className="aspect-square w-full rounded"
                       style={{ background: `linear-gradient(135deg, ${s.color}, #000)` }}
                     />
-                    <div className="mt-1.5 text-[10px] font-medium text-white/80">
-                      {s.name}
-                    </div>
+                    <div className="mt-1.5 text-[10px] font-medium text-white/80">{s.name}</div>
                     {style === s.name && (
                       <div className="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#7c5cff]">
                         <Check className="h-2.5 w-2.5 text-white" />
@@ -312,30 +462,53 @@ export default function StudioPage() {
                 Tools
               </h3>
               <div className="space-y-1.5">
-                <button className="flex w-full items-center justify-between rounded-md border border-white/10 bg-white/[0.02] px-3 py-2.5 text-sm text-white/70 transition-colors hover:border-white/20 hover:text-white">
-                  <span className="flex items-center gap-2">
-                    <Upload className="h-3.5 w-3.5" /> Upload ảnh tham chiếu
-                  </span>
-                  <span className="text-[10px] text-white/40">tối đa 4</span>
-                </button>
-                <button className="flex w-full items-center justify-between rounded-md border border-white/10 bg-white/[0.02] px-3 py-2.5 text-sm text-white/70 transition-colors hover:border-white/20 hover:text-white">
+                <ReferenceUploader value={refs} onChange={setRefs} max={4} />
+                <button
+                  onClick={() => toast({ type: "info", message: "Mở Inpaint từ variation đang chọn" })}
+                  type="button"
+                  className="flex w-full items-center justify-between rounded-md border border-white/10 bg-white/[0.02] px-3 py-2.5 text-sm text-white/70 transition-colors hover:border-white/20 hover:text-white"
+                >
                   <span className="flex items-center gap-2">
                     <Brush className="h-3.5 w-3.5" /> Inpaint
                   </span>
-                  <span className="text-[10px] text-white/40">chỉnh cục bộ</span>
+                  <span className="text-[10px] text-white/40">trên variation</span>
                 </button>
-                <button className="flex w-full items-center justify-between rounded-md border border-white/10 bg-white/[0.02] px-3 py-2.5 text-sm text-white/70 transition-colors hover:border-white/20 hover:text-white">
+                <button
+                  onClick={() => toast({ type: "info", message: "Mở Upscale từ variation đang chọn" })}
+                  type="button"
+                  className="flex w-full items-center justify-between rounded-md border border-white/10 bg-white/[0.02] px-3 py-2.5 text-sm text-white/70 transition-colors hover:border-white/20 hover:text-white"
+                >
                   <span className="flex items-center gap-2">
                     <Maximize2 className="h-3.5 w-3.5" /> Upscale 4×
                   </span>
                   <span className="text-[10px] text-white/40">+8 credit</span>
                 </button>
-                <button className="flex w-full items-center justify-between rounded-md border border-white/10 bg-white/[0.02] px-3 py-2.5 text-sm text-white/70 transition-colors hover:border-white/20 hover:text-white">
+                <button
+                  onClick={() => setShowAdvanced((s) => !s)}
+                  type="button"
+                  className="flex w-full items-center justify-between rounded-md border border-white/10 bg-white/[0.02] px-3 py-2.5 text-sm text-white/70 transition-colors hover:border-white/20 hover:text-white"
+                >
                   <span className="flex items-center gap-2">
                     <Sliders className="h-3.5 w-3.5" /> Nâng cao
                   </span>
-                  <ChevronDown className="h-3.5 w-3.5 text-white/40" />
+                  <ChevronDown className={cn("h-3.5 w-3.5 text-white/40 transition-transform", showAdvanced && "rotate-180")} />
                 </button>
+                {showAdvanced && (
+                  <div className="rounded-md border border-white/10 bg-white/[0.02] p-3 text-[11px] text-white/55">
+                    <label className="flex items-center justify-between">
+                      Steps
+                      <span className="text-white/80">30</span>
+                    </label>
+                    <label className="mt-2 flex items-center justify-between">
+                      Guidance
+                      <span className="text-white/80">7.5</span>
+                    </label>
+                    <label className="mt-2 flex items-center justify-between">
+                      Seed
+                      <span className="text-white/80">random</span>
+                    </label>
+                  </div>
+                )}
               </div>
             </div>
           </aside>
@@ -348,190 +521,70 @@ export default function StudioPage() {
                 <div className="flex items-center gap-3">
                   <h2 className="text-[19px] font-semibold leading-[1.15]">Canvas</h2>
                   <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[10px] text-white/60">
-                    {aspect} · {model.name}
+                    {aspect} · {modelMeta.name}
                   </span>
+                  {mounted && creditsReady && !enoughCredits && (
+                    <span className="rounded-full border border-[#ff5d4b]/30 bg-[#ff5d4b]/10 px-2.5 py-0.5 text-[10px] text-[#ff9a8a]">
+                      Không đủ credit
+                    </span>
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center gap-1.5 text-xs text-white/50">
-                    <Coins className="h-3.5 w-3.5 text-[#ffc533]" />
-                    Tiêu hao <span className="text-white">{model.credit}</span> credit / ảnh
+                <div className="flex items-center gap-2 text-xs text-white/50">
+                  <Coins className="h-3.5 w-3.5 text-[#ffc533]" />
+                  <span>
+                    Tiêu hao <span className="text-white">{totalCost}</span> credit / 4 ảnh
                   </span>
                 </div>
               </div>
 
               {/* Prompt bar */}
-              <div className="mb-4 flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] p-1.5 pl-4">
-                <Wand2 className="h-4 w-4 text-[#7c5cff]" />
-                <input
-                  type="text"
+              <div className="mb-4">
+                <PromptBar
                   value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Mô tả ảnh bạn muốn tạo…"
-                  className="flex-1 bg-transparent text-sm text-white placeholder-white/30 outline-none"
+                  onChange={setPrompt}
+                  onSubmit={handleGenerate}
+                  busy={busy}
                 />
-                <button
-                  onClick={handleGenerate}
-                  disabled={isGenerating}
-                  className="inline-flex h-9 items-center gap-2 rounded-full bg-white px-4 text-sm font-semibold text-black transition-opacity hover:opacity-90 disabled:opacity-50"
-                >
-                  {isGenerating ? (
-                    <>
-                      <span className="h-3 w-3 animate-spin rounded-full border-2 border-black border-t-transparent" />
-                      Generating
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-3.5 w-3.5" /> Generate
-                    </>
-                  )}
-                </button>
               </div>
 
               {/* Result grid */}
-              {variations.length === 0 && !isGenerating && (
-                <div className="flex aspect-[4/3] items-center justify-center rounded-[8.4px] border border-dashed border-white/10 bg-white/[0.02]">
-                  <div className="text-center">
-                    <ImageIcon className="mx-auto h-10 w-10 text-white/20" strokeWidth={1.2} />
-                    <p className="mt-3 text-sm text-white/50">
-                      Nhập prompt và bấm <span className="text-white">Generate</span> để bắt đầu
-                    </p>
-                    <p className="mt-1 text-xs text-white/30">
-                      4 variations sẽ hiện ra cùng lúc
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {isGenerating && variations.length === 0 && (
-                <div className="flex aspect-[4/3] items-center justify-center rounded-[8.4px] border border-white/10 bg-gradient-to-br from-[#7c5cff]/10 via-black to-[#d25fff]/10">
-                  <div className="text-center">
-                    <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-[#7c5cff]" />
-                    <p className="mt-4 text-sm text-white">
-                      Đang generate với <span className="font-semibold">{model.name}</span>…
-                    </p>
-                    <p className="mt-1 text-xs text-white/40">
-                      Thường mất 6–12 giây
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {variations.length > 0 && (
-                <>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
-                    {variations.map((src, i) => (
-                      <div
-                        key={i}
-                        onClick={() => setActiveVariation(i)}
-                        className={`group relative cursor-pointer overflow-hidden rounded-[8.4px] border transition-colors ${
-                          activeVariation === i
-                            ? "border-[#7c5cff]"
-                            : "border-white/10 hover:border-white/30"
-                        }`}
-                      >
-                        <div className="relative aspect-square w-full">
-                          <Image
-                            src={src}
-                            alt={`Variation ${i + 1}`}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 1024px) 50vw, 33vw"
-                          />
-                        </div>
-                        {isGenerating && i === variations.length - 1 && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-                            <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-[#7c5cff]" />
-                          </div>
-                        )}
-                        <div className="absolute right-2 top-2 flex items-center gap-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                            }}
-                            className="flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md transition-colors hover:bg-black/80"
-                          >
-                            <Heart className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md transition-colors hover:bg-black/80"
-                          >
-                            <Download className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                        <div className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium backdrop-blur-md">
-                          Variation {i + 1}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Action bar */}
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-white/10 bg-white/[0.03] p-3">
-                    <div className="flex items-center gap-2 text-xs text-white/50">
-                      <Sparkles className="h-3.5 w-3.5 text-[#7c5cff]" />
-                      Đã generate {variations.length}/4 variations · tổng −
-                      {model.credit * variations.length} credit
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 text-xs hover:bg-white/[0.08]">
-                        <Brush className="h-3 w-3" /> Inpaint
-                      </button>
-                      <button className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 text-xs hover:bg-white/[0.08]">
-                        <Maximize2 className="h-3 w-3" /> Upscale
-                      </button>
-                      <button
-                        onClick={handleGenerate}
-                        className="inline-flex h-8 items-center gap-1.5 rounded-full bg-white px-3 text-xs font-semibold text-black hover:opacity-90"
-                      >
-                        <Shuffle className="h-3 w-3" /> Re-roll
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
+              <ResultGrid
+                variations={variations}
+                aspect={aspect}
+                activeIndex={activeIndex}
+                busy={busy}
+                creditPerImage={modelMeta.credit}
+                modelName={model}
+                totalReceived={variations.length}
+                onSelect={setActiveIndex}
+                onToggleLike={toggleLikeVariation}
+                onDownload={downloadVariation}
+                onInpaint={() => {
+                  if (activeVariation) {
+                    setInpaintOpen(true);
+                  } else {
+                    toast({ type: "info", message: "Chọn một variation trước" });
+                  }
+                }}
+                onUpscale={handleUpscale}
+                onReroll={handleReroll}
+              />
             </div>
 
-            {/* Recent */}
-            <div className="mt-6 rounded-[8.4px] border border-white/10 bg-black p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="flex items-center gap-2 text-sm font-semibold">
-                  <History className="h-3.5 w-3.5 text-white/50" />
-                  Generation gần đây
-                </h3>
-                <Link
-                  href="/library"
-                  className="text-xs text-white/50 transition-colors hover:text-white"
-                >
-                  Xem tất cả →
-                </Link>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                {recentGenerations.map((r, i) => (
-                  <div
-                    key={i}
-                    className="group relative overflow-hidden rounded-md border border-white/10"
-                  >
-                    <div className="relative aspect-square w-full">
-                      <Image
-                        src={r.src}
-                        alt={r.model}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        sizes="33vw"
-                      />
-                    </div>
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                      <div className="text-[10px] font-medium text-white">{r.model}</div>
-                      <div className="text-[10px] text-white/50">{r.time}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <RecentGenerations />
           </section>
         </div>
       </div>
+
+      {/* Inpaint modal */}
+      {activeVariation && (
+        <InpaintModal
+          open={inpaintOpen}
+          onOpenChange={setInpaintOpen}
+          imageSrc={activeVariation.src}
+          onApply={handleInpaintApply}
+        />
+      )}
     </div>
   );
 }

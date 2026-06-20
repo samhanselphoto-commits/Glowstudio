@@ -20,6 +20,8 @@ import {
   Play,
 } from "lucide-react";
 
+import { CreditChip } from "@/components/ui/credit-chip";
+
 /* ---------- Data ---------- */
 
 const navItems = [
@@ -200,6 +202,7 @@ export default function HomePage() {
               <button className="hidden h-9 w-9 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/5 hover:text-white sm:flex">
                 <Bell className="h-4 w-4" />
               </button>
+              <CreditChip className="hidden md:inline-flex" />
               <Link
                 href="/login"
                 className="hidden h-9 items-center rounded-full px-4 text-sm text-white/80 transition-colors hover:bg-white/5 hover:text-white sm:flex"

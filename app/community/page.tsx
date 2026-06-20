@@ -17,6 +17,9 @@ import {
   Eye,
 } from "lucide-react";
 
+import { reuseHref } from "@/lib/links";
+import type { AspectRatio, ModelName } from "@/lib/types";
+
 /* ---------- Data ---------- */
 
 type Post = {
@@ -24,7 +27,7 @@ type Post = {
   author: string;
   handle: string;
   avatar: string;
-  model: string;
+  model: ModelName;
   modelTag: string;
   modelColor: string;
   credit: number;
@@ -32,6 +35,7 @@ type Post = {
   views: number;
   prompt: string;
   time: string;
+  aspect?: AspectRatio;
 };
 
 const posts: Post[] = [
@@ -176,12 +180,21 @@ export default function CommunityPage() {
   const [sort, setSort] = useState("trending");
   const [liked, setLiked] = useState<Set<number>>(new Set());
 
+  // Derive aspect from index (matches the visual masonry rhythm)
+  function aspectFor(i: number): AspectRatio {
+    if (i % 4 === 0) return "3:4";
+    if (i % 4 === 1) return "1:1";
+    if (i % 4 === 2) return "3:4";
+    return "4:3";
+  }
+  const enriched: Post[] = posts.map((p, i) => ({ ...p, aspect: aspectFor(i) }));
+
   const filtered = useMemo(() => {
-    const list = activeModel === "Tất cả" ? posts : posts.filter((p) => p.model === activeModel);
+    const list = activeModel === "Tất cả" ? enriched : enriched.filter((p) => p.model === activeModel);
     if (sort === "new") return [...list].reverse();
     if (sort === "top") return [...list].sort((a, b) => b.likes - a.likes);
     return [...list].sort((a, b) => b.likes + b.views / 100 - (a.likes + a.views / 100));
-  }, [activeModel, sort]);
+  }, [activeModel, sort, enriched]);
 
   const toggleLike = (i: number) => {
     setLiked((prev) => {
@@ -341,7 +354,7 @@ export default function CommunityPage() {
                           {p.likes + (liked.has(i) ? 1 : 0)}
                         </button>
                         <Link
-                          href="/studio"
+                          href={reuseHref({ prompt: p.prompt, model: p.model, aspect: p.aspect })}
                           className="flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-black"
                         >
                           <Wand2 className="h-3 w-3" />

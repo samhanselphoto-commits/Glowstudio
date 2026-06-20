@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+import { SeedOnMount } from "@/components/ui/seed-on-mount";
+import { ToastViewport } from "@/components/ui/toast";
+
 export const metadata: Metadata = {
   title: "Glowstudio — Design at the speed of thought",
   description:
@@ -14,7 +17,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className="min-h-screen antialiased">{children}</body>
+      <body className="min-h-screen antialiased">
+        {children}
+        <SeedOnMount />
+        <ToastViewport />
+      </body>
     </html>
   );
 }
