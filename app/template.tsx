@@ -8,8 +8,9 @@ import { AnimatePresence, motion, MotionConfig } from "motion/react";
  * which is what AnimatePresence needs to drive page transitions.
  *
  * Style: fade + soft scale + blur. Subtle, modern, focused.
- * CTA-driven nav still uses the expanding-circle overlay from
- * PageTransitionProvider (see `usePageTransition().go`).
+ * CTA-driven nav uses the neutral fade overlay from
+ * PageTransitionProvider (see `usePageTransition().go`) to mask
+ * the route swap, then this template animates the new page in.
  */
 export default function Template({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
