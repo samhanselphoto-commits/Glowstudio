@@ -4,6 +4,7 @@ import "./globals.css";
 import { SeedOnMount } from "@/components/ui/seed-on-mount";
 import { ToastViewport } from "@/components/ui/toast";
 import { PageTransitionProvider } from "@/components/ui/page-transition";
+import { RouteTransitionShell } from "@/components/ui/route-transition-shell";
 
 export const metadata: Metadata = {
   title: "Glowstudio — Design at the speed of thought",
@@ -20,7 +21,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className="min-h-screen antialiased">
         <PageTransitionProvider>
-          {children}
+          <RouteTransitionShell>{children}</RouteTransitionShell>
         </PageTransitionProvider>
         <SeedOnMount />
         <ToastViewport />
