@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -43,6 +43,14 @@ const ACT_LABEL: Record<UserActivityType, string> = {
 };
 
 export default function AdminUserDetailPage() {
+  return (
+    <Suspense fallback={<div className="py-12 text-center text-sm text-white/40">Đang tải…</div>}>
+      <UserDetailInner />
+    </Suspense>
+  );
+}
+
+function UserDetailInner() {
   const search = useSearchParams();
   const router = useRouter();
   const id = search?.get("id") ?? "";
@@ -301,4 +309,3 @@ function Metric({ label, value, sub }: { label: string; value: string | number; 
 }
 
 void ACT_LABEL;
-void Eye;

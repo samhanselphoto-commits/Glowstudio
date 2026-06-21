@@ -10,28 +10,33 @@ export type GuardMode = "any" | "moderate" | "super_admin";
 export function AdminRouteGuard({
   children,
   require,
+  allowUnauth = false,
 }: {
   children: React.ReactNode;
   require?: GuardMode;
+  /** Khi true (vd trang /admin/login), cho phép chưa login xem nội dung. */
+  allowUnauth?: boolean;
 }) {
   const router = useRouter();
   const { admin, hydrated, isSuperAdmin, canModerate } = useAdminAuth();
 
+  // Redirect sau khi hydrate (tránh flicker SSR)
   useEffect(() => {
     if (!hydrated) return;
-    if (!admin) {
-      router.replace("/admin/login");
+    if (allowUnauth) {
+      if (admin) router.replace("/admin");
+      return;
     }
-  }, [hydrated, admin, router]);
+    if (!admin) router.replace("/admin/login");
+  }, [hydrated, admin, router, allowUnauth]);
 
-  if (!hydrated) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-sm text-white/40">Đang tải…</div>
-      </div>
-    );
-  }
+  // SSR + pre-hydrate: luôn render children để tránh trắng trang / "Đang tải…"
+  if (!hydrated) return <>{children}</>;
 
+  // allowUnauth + đã login → page login sẽ redirect, cứ render
+  if (allowUnauth) return <>{children}</>;
+
+  // Chưa login + không allowUnauth → render null (useEffect sẽ redirect ngay)
   if (!admin) return null;
 
   if (require === "super_admin" && !isSuperAdmin) {

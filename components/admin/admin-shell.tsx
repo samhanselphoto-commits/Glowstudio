@@ -2,17 +2,12 @@
 
 import { AdminRouteGuard } from "./admin-route-guard";
 import { AdminSidebar } from "./admin-sidebar";
-import { usePathname } from "next/navigation";
 
+/**
+ * Layout shell cho /admin/*. Tự wrap children trong AdminRouteGuard + sidebar.
+ * Trang /admin/login sẽ tự kiểm tra admin ở page-level và redirect, không cần guard.
+ */
 export function AdminShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname() ?? "";
-  const isLogin = pathname === "/admin/login";
-
-  // Login page render full-bleed (no sidebar)
-  if (isLogin) {
-    return <AdminRouteGuard>{children}</AdminRouteGuard>;
-  }
-
   return (
     <AdminRouteGuard>
       <div className="min-h-screen bg-[#0a0a0b] text-white">
