@@ -40,7 +40,7 @@ type Post = {
 
 const posts: Post[] = [
   {
-    src: "hero/studio-1.png",
+    src: "community/01-community-7e349377.png",
     author: "Linh Nguyễn",
     handle: "linh.design",
     avatar: "from-[#7c5cff] to-[#d25fff]",
@@ -54,7 +54,7 @@ const posts: Post[] = [
     time: "2 giờ trước",
   },
   {
-    src: "hero/studio-2.png",
+    src: "community/02-face-1.png",
     author: "Khoa Trần",
     handle: "khoa.creative",
     avatar: "from-[#03e65b] to-[#33d0ff]",
@@ -68,7 +68,7 @@ const posts: Post[] = [
     time: "5 giờ trước",
   },
   {
-    src: "hero/studio-3.png",
+    src: "community/03-gpt-image-2.png",
     author: "Mai Phạm",
     handle: "mai.studio",
     avatar: "from-[#ffc533] to-[#ff5d4b]",
@@ -82,7 +82,7 @@ const posts: Post[] = [
     time: "8 giờ trước",
   },
   {
-    src: "hero/studio-1.png",
+    src: "community/04-k99.png",
     author: "Hùng Lê",
     handle: "hung.type",
     avatar: "from-[#ff3386] to-[#d25fff]",
@@ -96,7 +96,7 @@ const posts: Post[] = [
     time: "12 giờ trước",
   },
   {
-    src: "hero/studio-2.png",
+    src: "community/05-mchose-g75-pro.png",
     author: "Trang Đỗ",
     handle: "trang.mood",
     avatar: "from-[#33d0ff] to-[#7c5cff]",
@@ -110,7 +110,7 @@ const posts: Post[] = [
     time: "1 ngày trước",
   },
   {
-    src: "hero/studio-3.png",
+    src: "community/06-mchose-l7.png",
     author: "Sơn Bùi",
     handle: "son.brand",
     avatar: "from-[#7c5cff] to-[#03e65b]",
@@ -124,7 +124,7 @@ const posts: Post[] = [
     time: "1 ngày trước",
   },
   {
-    src: "hero/studio-1.png",
+    src: "community/07-tn1-2.png",
     author: "Vy Hoàng",
     handle: "vy.illus",
     avatar: "from-[#d25fff] to-[#ff3386]",
@@ -138,7 +138,7 @@ const posts: Post[] = [
     time: "2 ngày trước",
   },
   {
-    src: "hero/studio-2.png",
+    src: "community/08-tn1-4.png",
     author: "Đức Ngô",
     handle: "duc.product",
     avatar: "from-[#ff5d4b] to-[#ffc533]",
@@ -152,7 +152,7 @@ const posts: Post[] = [
     time: "2 ngày trước",
   },
   {
-    src: "hero/studio-3.png",
+    src: "community/09-viewsonic-1.png",
     author: "Hà Vũ",
     handle: "ha.editorial",
     avatar: "from-[#33d0ff] to-[#03e65b]",
@@ -164,6 +164,118 @@ const posts: Post[] = [
     views: 1640,
     prompt: "Travel editorial Vịnh Hạ Long, drone shot, ánh sáng golden hour",
     time: "3 ngày trước",
+  },
+  {
+    src: "community/10-viewsonic-2.png",
+    author: "Phương Trinh",
+    handle: "trinh.tech",
+    avatar: "from-[#7c5cff] to-[#33d0ff]",
+    model: "Recraft v3",
+    modelTag: "Beta",
+    modelColor: "bg-[#ff3386]/15 text-[#ff3386]",
+    credit: 9,
+    likes: 198,
+    views: 1230,
+    prompt: "Màn hình gaming ViewSonic trên setup RGB, ánh sáng neon tím & xanh",
+    time: "3 giờ trước",
+  },
+  {
+    src: "community/11-viewsonic-3.png",
+    author: "Quang Đinh",
+    handle: "quang.desk",
+    avatar: "from-[#ffc533] to-[#7c5cff]",
+    model: "GPT Image",
+    modelTag: "Pro",
+    modelColor: "bg-[#d25fff]/15 text-[#d25fff]",
+    credit: 12,
+    likes: 145,
+    views: 890,
+    prompt: "Desk setup minimalist với màn hình 4K, ánh sáng tự nhiên cửa sổ, gỗ sồi",
+    time: "4 giờ trước",
+  },
+  {
+    src: "community/12-viewsonic-4.png",
+    author: "Hoa Nguyễn",
+    handle: "hoa.color",
+    avatar: "from-[#ff3386] to-[#ffc533]",
+    model: "Flux Pro",
+    modelTag: "Pro",
+    modelColor: "bg-[#d25fff]/15 text-[#d25fff]",
+    credit: 15,
+    likes: 287,
+    views: 1980,
+    prompt: "Color grading cinematic trên ảnh sản phẩm công nghệ, tông teal cam",
+    time: "6 giờ trước",
+  },
+  {
+    src: "community/13-viewsonic-5.png",
+    author: "Minh Tuấn",
+    handle: "tuan.work",
+    avatar: "from-[#03e65b] to-[#7c5cff]",
+    model: "NANO BANANA",
+    modelTag: "Pro",
+    modelColor: "bg-[#d25fff]/15 text-[#d25fff]",
+    credit: 10,
+    likes: 167,
+    views: 1050,
+    prompt: "Workstation setup cho designer, màn hình đôi, ánh sáng khuếch tán, plant decor",
+    time: "7 giờ trước",
+  },
+  {
+    src: "community/14-viewsonic-6.png",
+    author: "Lan Anh",
+    handle: "lan.photo",
+    avatar: "from-[#d25fff] to-[#ff5d4b]",
+    model: "Zturbo",
+    modelTag: "Free",
+    modelColor: "bg-[#03e65b]/15 text-[#03e65b]",
+    credit: 3,
+    likes: 89,
+    views: 620,
+    prompt: "Studio chụp ảnh sản phẩm tối giản, nền trắng, ánh sáng softbox hai bên",
+    time: "10 giờ trước",
+  },
+  {
+    src: "community/15-viewsonic-7.png",
+    author: "Bảo Ngọc",
+    handle: "bao.gradient",
+    avatar: "from-[#ff5d4b] to-[#7c5cff]",
+    model: "Ideogram",
+    modelTag: "Pro",
+    modelColor: "bg-[#d25fff]/15 text-[#d25fff]",
+    credit: 8,
+    likes: 213,
+    views: 1480,
+    prompt: "Poster sự kiện công nghệ 2026, gradient tím xanh, typography geometric",
+    time: "1 ngày trước",
+  },
+  {
+    src: "community/16-viewsonic-8.png",
+    author: "Thanh Hà",
+    handle: "thanh.brand",
+    avatar: "from-[#33d0ff] to-[#ffc533]",
+    model: "GPT Image",
+    modelTag: "Pro",
+    modelColor: "bg-[#d25fff]/15 text-[#d25fff]",
+    credit: 12,
+    likes: 312,
+    views: 2240,
+    prompt: "Showcase sản phẩm điện tử cao cấp, lighting 3-point, marble đen, ultra clean",
+    time: "2 ngày trước",
+  },
+  {
+    src: "community/17-x9-pro.png",
+    author: "Đăng Khoa",
+    handle: "khoa.gear",
+    avatar: "from-[#7c5cff] to-[#ff3386]",
+    model: "Flux Pro",
+    modelTag: "Pro",
+    modelColor: "bg-[#d25fff]/15 text-[#d25fff]",
+    credit: 15,
+    likes: 421,
+    views: 3120,
+    prompt: "Review thiết bị gaming flagship, dramatic lighting, dark background, RGB accents",
+    time: "4 ngày trước",
   },
 ];
 
@@ -182,9 +294,11 @@ export default function CommunityPage() {
 
   // Derive aspect from index (matches the visual masonry rhythm)
   function aspectFor(i: number): AspectRatio {
-    if (i % 4 === 0) return "3:4";
-    if (i % 4 === 1) return "1:1";
-    if (i % 4 === 2) return "3:4";
+    const r = i % 5;
+    if (r === 0) return "3:4";
+    if (r === 1) return "1:1";
+    if (r === 2) return "9:16";
+    if (r === 3) return "3:4";
     return "4:3";
   }
   const enriched: Post[] = posts.map((p, i) => ({ ...p, aspect: aspectFor(i) }));
