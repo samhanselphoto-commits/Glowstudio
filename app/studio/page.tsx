@@ -23,6 +23,8 @@ import { ReferenceUploader } from "@/components/studio/reference-uploader";
 import { ResultGrid } from "@/components/studio/result-grid";
 import { RecentGenerations } from "@/components/studio/recent-generations";
 import { InpaintModal } from "@/components/studio/inpaint-modal";
+import { StickyNav } from "@/components/public/sticky-nav";
+import { AnimatePresence, motion } from "motion/react";
 
 import { useCredits } from "@/hooks/use-credits";
 import { useGenerations } from "@/hooks/use-generations";
@@ -270,38 +272,7 @@ export default function StudioPage() {
 
       <div className="relative">
         {/* ---------- Top bar ---------- */}
-        <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0a0a0a]/70 backdrop-blur-xl">
-          <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-6 px-6">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#7c5cff] shadow-[0_0_24px_rgba(124,92,255,0.55)]">
-                <Sparkles className="h-4 w-4 text-white" strokeWidth={2.5} />
-              </div>
-              <span className="text-[15px] font-semibold tracking-tight">Glowstudio</span>
-            </Link>
-
-            <nav className="hidden items-center gap-1 md:flex">
-              <Link href="/studio" className="rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white">
-                Studio
-              </Link>
-              <Link href="/community" className="rounded-full px-4 py-1.5 text-sm text-white/70 transition-colors hover:bg-white/5 hover:text-white">
-                Community
-              </Link>
-              <Link href="/library" className="rounded-full px-4 py-1.5 text-sm text-white/70 transition-colors hover:bg-white/5 hover:text-white">
-                Library
-              </Link>
-              <Link href="/pricing" className="rounded-full px-4 py-1.5 text-sm text-white/70 transition-colors hover:bg-white/5 hover:text-white">
-                Pricing
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <CreditChip className="hidden sm:inline-flex" />
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#7c5cff] to-[#d25fff] text-xs font-semibold">
-                LN
-              </div>
-            </div>
-          </div>
-        </header>
+        <StickyNav variant="studio" />
 
         {/* ---------- Studio layout ---------- */}
         <div className="mx-auto grid max-w-[1600px] gap-6 px-6 py-6 lg:grid-cols-12">
@@ -363,40 +334,51 @@ export default function StudioPage() {
                 <ChevronDown className={cn("h-4 w-4 text-white/40 transition-transform", showModelPicker && "rotate-180")} />
               </button>
 
-              {showModelPicker && (
-                <div className="mt-2 space-y-1 rounded-md border border-white/10 bg-[#0a0a0a] p-1">
-                  {MODEL_OPTIONS.map((m) => (
-                    <button
-                      key={m.name}
-                      onClick={() => {
-                        setModel(m.name);
-                        setShowModelPicker(false);
-                      }}
-                      type="button"
-                      className={cn(
-                        "flex w-full items-start justify-between gap-3 rounded px-2.5 py-2 text-left transition-colors",
-                        m.name === model ? "bg-[#7c5cff]/10" : "hover:bg-white/5"
-                      )}
-                    >
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">{m.name}</span>
-                          <span className={cn("rounded-full px-1.5 py-0.5 text-[10px] font-semibold", m.tagColor)}>
-                            {m.tag}
-                          </span>
-                        </div>
-                        <div className="mt-0.5 truncate text-[11px] text-white/40">{m.desc}</div>
-                      </div>
-                      <div className="shrink-0 text-right text-[11px] text-white/60">
-                        <div className="flex items-center gap-1">
-                          <Coins className="h-3 w-3 text-[#ffc533]" />
-                          {m.credit}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
+              <AnimatePresence initial={false}>
+                {showModelPicker && (
+                  <motion.div
+                    key="model-picker"
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    animate={{ opacity: 1, height: "auto", marginTop: 8 }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                    transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="space-y-1 rounded-md border border-white/10 bg-[#0a0a0a] p-1">
+                      {MODEL_OPTIONS.map((m) => (
+                        <button
+                          key={m.name}
+                          onClick={() => {
+                            setModel(m.name);
+                            setShowModelPicker(false);
+                          }}
+                          type="button"
+                          className={cn(
+                            "flex w-full items-start justify-between gap-3 rounded px-2.5 py-2 text-left transition-colors",
+                            m.name === model ? "bg-[#7c5cff]/10" : "hover:bg-white/5"
+                          )}
+                        >
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">{m.name}</span>
+                              <span className={cn("rounded-full px-1.5 py-0.5 text-[10px] font-semibold", m.tagColor)}>
+                                {m.tag}
+                              </span>
+                            </div>
+                            <div className="mt-0.5 truncate text-[11px] text-white/40">{m.desc}</div>
+                          </div>
+                          <div className="shrink-0 text-right text-[11px] text-white/60">
+                            <div className="flex items-center gap-1">
+                              <Coins className="h-3 w-3 text-[#ffc533]" />
+                              {m.credit}
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Aspect ratio */}
@@ -405,21 +387,30 @@ export default function StudioPage() {
                 Aspect
               </h3>
               <div className="grid grid-cols-5 gap-1.5">
-                {(["1:1", "4:3", "3:4", "16:9", "9:16"] as const).map((a) => (
-                  <button
-                    key={a}
-                    onClick={() => setAspect(a)}
-                    type="button"
-                    className={cn(
-                      "rounded-md border py-2 text-xs transition-colors",
-                      aspect === a
-                        ? "border-[#7c5cff]/60 bg-[#7c5cff]/10 text-white"
-                        : "border-white/10 bg-white/[0.02] text-white/60 hover:border-white/20"
-                    )}
-                  >
-                    {a}
-                  </button>
-                ))}
+                {(["1:1", "4:3", "3:4", "16:9", "9:16"] as const).map((a) => {
+                  const selected = aspect === a;
+                  return (
+                    <motion.button
+                      key={a}
+                      onClick={() => setAspect(a)}
+                      type="button"
+                      layout
+                      className={cn(
+                        "relative rounded-md border py-2 text-xs transition-colors",
+                        selected ? "text-white" : "border-white/10 bg-white/[0.02] text-white/60 hover:border-white/20"
+                      )}
+                    >
+                      {selected && (
+                        <motion.span
+                          layoutId="aspect-indicator"
+                          transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                          className="absolute inset-0 rounded-md border border-[#7c5cff]/60 bg-[#7c5cff]/10"
+                        />
+                      )}
+                      <span className="relative">{a}</span>
+                    </motion.button>
+                  );
+                })}
               </div>
             </div>
 
@@ -429,30 +420,38 @@ export default function StudioPage() {
                 Style
               </h3>
               <div className="grid grid-cols-3 gap-2">
-                {STYLE_PRESETS.map((s) => (
-                  <button
-                    key={s.name}
-                    onClick={() => setStyle(s.name)}
-                    type="button"
-                    className={cn(
-                      "group relative overflow-hidden rounded-md border p-2 text-left transition-colors",
-                      style === s.name
-                        ? "border-[#7c5cff]/60 bg-[#7c5cff]/10"
-                        : "border-white/10 bg-white/[0.02] hover:border-white/20"
-                    )}
-                  >
-                    <div
-                      className="aspect-square w-full rounded"
-                      style={{ background: `linear-gradient(135deg, ${s.color}, #000)` }}
-                    />
-                    <div className="mt-1.5 text-[10px] font-medium text-white/80">{s.name}</div>
-                    {style === s.name && (
-                      <div className="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#7c5cff]">
-                        <Check className="h-2.5 w-2.5 text-white" />
-                      </div>
-                    )}
-                  </button>
-                ))}
+                {STYLE_PRESETS.map((s) => {
+                  const selected = style === s.name;
+                  return (
+                    <motion.button
+                      key={s.name}
+                      onClick={() => setStyle(s.name)}
+                      type="button"
+                      layout
+                      className={cn(
+                        "group relative overflow-hidden rounded-md border p-2 text-left transition-colors",
+                        selected
+                          ? "border-[#7c5cff]/60 bg-[#7c5cff]/10"
+                          : "border-white/10 bg-white/[0.02] hover:border-white/20"
+                      )}
+                    >
+                      <div
+                        className="aspect-square w-full rounded"
+                        style={{ background: `linear-gradient(135deg, ${s.color}, #000)` }}
+                      />
+                      <div className="mt-1.5 text-[10px] font-medium text-white/80">{s.name}</div>
+                      {selected && (
+                        <motion.div
+                          layoutId="style-check"
+                          transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                          className="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#7c5cff]"
+                        >
+                          <Check className="h-2.5 w-2.5 text-white" />
+                        </motion.div>
+                      )}
+                    </motion.button>
+                  );
+                })}
               </div>
             </div>
 
@@ -493,22 +492,33 @@ export default function StudioPage() {
                   </span>
                   <ChevronDown className={cn("h-3.5 w-3.5 text-white/40 transition-transform", showAdvanced && "rotate-180")} />
                 </button>
-                {showAdvanced && (
-                  <div className="rounded-md border border-white/10 bg-white/[0.02] p-3 text-[11px] text-white/55">
-                    <label className="flex items-center justify-between">
-                      Steps
-                      <span className="text-white/80">30</span>
-                    </label>
-                    <label className="mt-2 flex items-center justify-between">
-                      Guidance
-                      <span className="text-white/80">7.5</span>
-                    </label>
-                    <label className="mt-2 flex items-center justify-between">
-                      Seed
-                      <span className="text-white/80">random</span>
-                    </label>
-                  </div>
-                )}
+                <AnimatePresence initial={false}>
+                  {showAdvanced && (
+                    <motion.div
+                      key="advanced-panel"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="rounded-md border border-white/10 bg-white/[0.02] p-3 text-[11px] text-white/55">
+                        <label className="flex items-center justify-between">
+                          Steps
+                          <span className="text-white/80">30</span>
+                        </label>
+                        <label className="mt-2 flex items-center justify-between">
+                          Guidance
+                          <span className="text-white/80">7.5</span>
+                        </label>
+                        <label className="mt-2 flex items-center justify-between">
+                          Seed
+                          <span className="text-white/80">random</span>
+                        </label>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </aside>

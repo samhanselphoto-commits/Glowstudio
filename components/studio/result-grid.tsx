@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { Image as ImageIcon, Brush, Maximize2, Shuffle, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { AnimatePresence, motion } from "motion/react";
 import { VariationCard } from "./variation-card";
 import { cn } from "@/lib/cn";
 import type { AspectRatio, Variation } from "@/lib/types";
@@ -74,19 +75,29 @@ export function ResultGrid({
   return (
     <>
       <div className={cn("grid gap-3", aspect === "1:1" ? "sm:grid-cols-2" : "sm:grid-cols-2")}>
-        {variations.map((v, i) => (
-          <VariationCard
-            key={v.id}
-            variation={v}
-            aspect={aspect}
-            index={i}
-            isActive={activeIndex === i}
-            busy={busy && i === variations.length - 1}
-            onSelect={() => onSelect(i)}
-            onToggleLike={() => onToggleLike(v.id)}
-            onDownload={() => onDownload(v)}
-          />
-        ))}
+        <AnimatePresence initial={false}>
+          {variations.map((v, i) => (
+            <motion.div
+              key={v.id}
+              layout
+              initial={{ opacity: 0, scale: 0.92, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92 }}
+              transition={{ duration: 0.45, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <VariationCard
+                variation={v}
+                aspect={aspect}
+                index={i}
+                isActive={activeIndex === i}
+                busy={busy && i === variations.length - 1}
+                onSelect={() => onSelect(i)}
+                onToggleLike={() => onToggleLike(v.id)}
+                onDownload={() => onDownload(v)}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
       {/* Action bar */}

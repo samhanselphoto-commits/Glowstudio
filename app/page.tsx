@@ -1,5 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { motion } from "motion/react";
 import {
   Sparkles,
   Image as ImageIcon,
@@ -9,29 +13,20 @@ import {
   Coins,
   Users,
   Wand2,
-  Search,
   Bell,
-  ChevronDown,
   ArrowRight,
   Check,
-  Plus,
   Heart,
-  Download,
   Play,
 } from "lucide-react";
 
-import { CreditChip } from "@/components/ui/credit-chip";
-import { AdminLink } from "@/components/public/admin-link";
+import { StickyNav } from "@/components/public/sticky-nav";
 import { HeroSlideshow } from "@/components/public/hero-slideshow";
+import { RevealOnScroll } from "@/components/ui/reveal-on-scroll";
+import { MagneticButton } from "@/components/ui/magnetic-button";
+import { useMounted } from "@/hooks/use-mounted";
 
 /* ---------- Data ---------- */
-
-const navItems = [
-  { label: "Studio", href: "/studio" },
-  { label: "Community", href: "/community" },
-  { label: "Library", href: "/library" },
-  { label: "Pricing", href: "/pricing" },
-];
 
 const models = [
   {
@@ -168,70 +163,40 @@ const plans = [
   },
 ];
 
+const HERO_FADE_UP_DELAYS = [0, 100, 200, 300, 400];
+
 export default function HomePage() {
+  const mounted = useMounted();
+  const router = useRouter();
+
   return (
     <div className="relative min-h-screen bg-[#000000] text-white">
       {/* Aurora ambient glow */}
       <div className="pointer-events-none fixed inset-0">
-        <div className="absolute -top-40 left-1/2 h-[600px] w-[1100px] -translate-x-1/2 rounded-full bg-[#7c5cff]/20 blur-[140px]" />
-        <div className="absolute top-[40%] right-[-10%] h-[400px] w-[600px] rounded-full bg-[#d25fff]/10 blur-[120px]" />
+        <div className="absolute -top-40 left-1/2 h-[600px] w-[1100px] -translate-x-1/2 rounded-full bg-[#7c5cff]/20 blur-[140px] animate-aurora-drift-slow" />
+        <div className="absolute top-[40%] right-[-10%] h-[400px] w-[600px] rounded-full bg-[#d25fff]/10 blur-[120px] animate-aurora-drift-slower" />
       </div>
 
       <div className="relative">
         {/* ---------- Top nav ---------- */}
-        <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0a0a0a]/70 backdrop-blur-xl">
-          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-6">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#7c5cff] shadow-[0_0_24px_rgba(124,92,255,0.55)]">
-                <Sparkles className="h-4 w-4 text-white" strokeWidth={2.5} />
-              </div>
-              <span className="text-[15px] font-semibold tracking-tight">Glowstudio</span>
-            </Link>
-
-            <nav className="hidden items-center gap-1 md:flex">
-              {navItems.map((n) => (
-                <Link
-                  key={n.label}
-                  href={n.href}
-                  className="rounded-full px-4 py-1.5 text-sm text-white/70 transition-colors hover:bg-white/5 hover:text-white"
-                >
-                  {n.label}
-                </Link>
-              ))}
-            </nav>
-
-            <div className="flex items-center gap-2">
-              <AdminLink />
-              <button className="hidden h-9 w-9 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/5 hover:text-white sm:flex">
-                <Bell className="h-4 w-4" />
-              </button>
-              <CreditChip className="hidden md:inline-flex" />
-              <Link
-                href="/login"
-                className="hidden h-9 items-center rounded-full px-4 text-sm text-white/80 transition-colors hover:bg-white/5 hover:text-white sm:flex"
-              >
-                Đăng nhập
-              </Link>
-              <Link
-                href="/signup"
-                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-white px-4 text-sm font-semibold text-black transition-opacity hover:opacity-90"
-              >
-                Bắt đầu miễn phí
-              </Link>
-            </div>
-          </div>
-        </header>
+        <StickyNav variant="home" />
 
         {/* ---------- Hero ---------- */}
         <section className="relative px-6 pt-20 pb-24 sm:pt-28">
           <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-12">
             <div className="lg:col-span-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#7c5cff]/30 bg-[#7c5cff]/10 px-3 py-1 text-xs text-[#c8b8ff]">
+              <div
+                className="inline-flex items-center gap-2 rounded-full border border-[#7c5cff]/30 bg-[#7c5cff]/10 px-3 py-1 text-xs text-[#c8b8ff]"
+                style={mounted ? { animation: `fadeUp 700ms cubic-bezier(0.22, 1, 0.36, 1) ${HERO_FADE_UP_DELAYS[0]}ms both` } : undefined}
+              >
                 <span className="h-1.5 w-1.5 rounded-full bg-[#7c5cff] shadow-[0_0_8px_#7c5cff]" />
                 Mới · 6 model AI trong một Studio
               </div>
 
-              <h1 className="mt-6 text-[56px] font-extrabold leading-[0.9] tracking-[-0.02em] sm:text-[78px]">
+              <h1
+                className="mt-6 text-[56px] font-extrabold leading-[0.9] tracking-[-0.02em] sm:text-[78px]"
+                style={mounted ? { animation: `fadeUp 700ms cubic-bezier(0.22, 1, 0.36, 1) ${HERO_FADE_UP_DELAYS[1]}ms both` } : undefined}
+              >
                 Đa model AI,
                 <br />
                 <span className="bg-gradient-to-r from-[#7c5cff] via-[#a98bff] to-[#d25fff] bg-clip-text text-transparent">
@@ -239,19 +204,29 @@ export default function HomePage() {
                 </span>
               </h1>
 
-              <p className="mt-6 max-w-lg text-[17px] leading-relaxed text-white/60">
+              <p
+                className="mt-6 max-w-lg text-[17px] leading-relaxed text-white/60"
+                style={mounted ? { animation: `fadeUp 700ms cubic-bezier(0.22, 1, 0.36, 1) ${HERO_FADE_UP_DELAYS[2]}ms both` } : undefined}
+              >
                 GPT Image, NANO BANANA, Zturbo, Flux Pro — chuyển đổi model trong một cú
                 click. Tạo ảnh chuyên nghiệp cho thiết kế, marketing và thương hiệu Việt.
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Link
-                  href="/studio"
-                  className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-black shadow-[0_0_40px_rgba(255,255,255,0.15)] transition-opacity hover:opacity-90"
-                >
-                  Mở Studio
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+              <div
+                className="mt-8 flex flex-wrap items-center gap-3"
+                style={mounted ? { animation: `fadeUp 700ms cubic-bezier(0.22, 1, 0.36, 1) ${HERO_FADE_UP_DELAYS[3]}ms both` } : undefined}
+              >
+                {/* Magnetic CTA primary — pulses */}
+                <div className="relative">
+                  <span className="pointer-events-none absolute -inset-1 rounded-full bg-[#7c5cff] opacity-50 blur-md animate-cta-pulse" />
+                  <MagneticButton
+                    onClick={() => router.push("/studio")}
+                    className="relative inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-black shadow-[0_0_40px_rgba(255,255,255,0.15)] transition-opacity hover:opacity-90"
+                  >
+                    Mở Studio
+                    <ArrowRight className="h-4 w-4" />
+                  </MagneticButton>
+                </div>
                 <Link
                   href="/community"
                   className="inline-flex h-12 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-6 text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white/[0.08]"
@@ -261,7 +236,10 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              <div className="mt-10 flex items-center gap-6 text-xs text-white/40">
+              <div
+                className="mt-10 flex items-center gap-6 text-xs text-white/40"
+                style={mounted ? { animation: `fadeUp 700ms cubic-bezier(0.22, 1, 0.36, 1) ${HERO_FADE_UP_DELAYS[4]}ms both` } : undefined}
+              >
                 <div>
                   <div className="text-[19px] font-extrabold text-white">120k+</div>
                   ảnh đã tạo
@@ -286,7 +264,7 @@ export default function HomePage() {
         </section>
 
         {/* ---------- Model row ---------- */}
-        <section className="border-y border-white/10 bg-[#0a0a0a] px-6 py-10">
+        <RevealOnScroll as="section" className="border-y border-white/10 bg-[#0a0a0a] px-6 py-10">
           <div className="mx-auto max-w-7xl">
             <div className="mb-6 flex items-end justify-between">
               <div>
@@ -306,37 +284,36 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {models.map((m) => (
-                <div
-                  key={m.name}
-                  className="group rounded-[8.4px] border border-white/10 bg-black p-5 transition-colors hover:border-[#7c5cff]/40 hover:bg-[#7c5cff]/[0.04]"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="text-[19px] font-semibold leading-[1.15]">
-                        {m.name}
-                      </h3>
-                      <p className="mt-1 text-sm text-white/50">{m.desc}</p>
+              {models.map((m, i) => (
+                <RevealOnScroll key={m.name} delay={i * 80} yOffset={14}>
+                  <div className="group h-full rounded-[8.4px] border border-white/10 bg-black p-5 transition-colors hover:border-[#7c5cff]/40 hover:bg-[#7c5cff]/[0.04]">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-[19px] font-semibold leading-[1.15]">
+                          {m.name}
+                        </h3>
+                        <p className="mt-1 text-sm text-white/50">{m.desc}</p>
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${m.tagColor}`}
+                      >
+                        {m.tag}
+                      </span>
                     </div>
-                    <span
-                      className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${m.tagColor}`}
-                    >
-                      {m.tag}
-                    </span>
+                    <div className="mt-4 flex items-center gap-1.5 text-sm">
+                      <Coins className="h-3.5 w-3.5 text-[#ffc533]" />
+                      <span className="text-white/80">{m.credit} credit</span>
+                      <span className="text-white/40">/ ảnh</span>
+                    </div>
                   </div>
-                  <div className="mt-4 flex items-center gap-1.5 text-sm">
-                    <Coins className="h-3.5 w-3.5 text-[#ffc533]" />
-                    <span className="text-white/80">{m.credit} credit</span>
-                    <span className="text-white/40">/ ảnh</span>
-                  </div>
-                </div>
+                </RevealOnScroll>
               ))}
             </div>
           </div>
-        </section>
+        </RevealOnScroll>
 
         {/* ---------- Features ---------- */}
-        <section className="px-6 py-24">
+        <RevealOnScroll as="section" className="px-6 py-24">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-2xl">
               <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/40">
@@ -350,29 +327,28 @@ export default function HomePage() {
             </div>
 
             <div className="mt-12 grid gap-px overflow-hidden rounded-[8.4px] border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
-              {features.map((f) => {
+              {features.map((f, i) => {
                 const Icon = f.icon;
                 return (
-                  <div
-                    key={f.title}
-                    className="bg-black p-7 transition-colors hover:bg-[#0a0a0a]"
-                  >
-                    <Icon className="h-6 w-6 text-[#7c5cff]" strokeWidth={1.6} />
-                    <h3 className="mt-4 text-[19px] font-semibold leading-[1.15]">
-                      {f.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-white/55">
-                      {f.desc}
-                    </p>
-                  </div>
+                  <RevealOnScroll key={f.title} delay={i * 80} yOffset={20}>
+                    <div className="h-full bg-black p-7 transition-colors hover:bg-[#0a0a0a]">
+                      <Icon className="h-6 w-6 text-[#7c5cff]" strokeWidth={1.6} />
+                      <h3 className="mt-4 text-[19px] font-semibold leading-[1.15]">
+                        {f.title}
+                      </h3>
+                      <p className="mt-2 text-sm leading-relaxed text-white/55">
+                        {f.desc}
+                      </p>
+                    </div>
+                  </RevealOnScroll>
                 );
               })}
             </div>
           </div>
-        </section>
+        </RevealOnScroll>
 
         {/* ---------- Community preview ---------- */}
-        <section className="border-t border-white/10 bg-[#0a0a0a] px-6 py-24">
+        <RevealOnScroll as="section" className="border-t border-white/10 bg-[#0a0a0a] px-6 py-24">
           <div className="mx-auto max-w-7xl">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div className="max-w-xl">
@@ -395,53 +371,62 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Masonry-like feed */}
+            {/* Masonry-like feed with hover lift */}
             <div className="mt-10 columns-1 gap-4 sm:columns-2 lg:columns-3">
               {communityFeed.map((item, i) => (
-                <Link
+                <motion.div
                   key={i}
-                  href="/community"
-                  className="group mb-4 block break-inside-avoid overflow-hidden rounded-[8.4px] border border-white/10 bg-black transition-colors hover:border-[#7c5cff]/40"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.5, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ y: -4 }}
+                  className="mb-4 break-inside-avoid"
                 >
-                  <div className="relative w-full">
-                    <div className="relative aspect-[4/5] w-full">
-                      <Image
-                        src={item.src}
-                        alt={item.prompt}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
+                  <Link
+                    href="/community"
+                    className="group block overflow-hidden rounded-[8.4px] border border-white/10 bg-black transition-colors hover:border-[#7c5cff]/40"
+                  >
+                    <div className="relative w-full">
+                      <div className="relative aspect-[4/5] w-full">
+                        <Image
+                          src={item.src}
+                          alt={item.prompt}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-center gap-2 text-xs text-white/50">
-                      <span className="font-medium text-white/80">@{item.author}</span>
-                      <span>·</span>
-                      <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px]">
-                        {item.model}
-                      </span>
+                    <div className="p-4">
+                      <div className="flex items-center gap-2 text-xs text-white/50">
+                        <span className="font-medium text-white/80">@{item.author}</span>
+                        <span>·</span>
+                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px]">
+                          {item.model}
+                        </span>
+                      </div>
+                      <p className="mt-2 line-clamp-2 text-sm text-white/70">
+                        {item.prompt}
+                      </p>
+                      <div className="mt-3 flex items-center gap-3 text-xs text-white/40">
+                        <span className="inline-flex items-center gap-1">
+                          <Heart className="h-3 w-3" /> {item.likes}
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                          <Zap className="h-3 w-3" /> re-use prompt
+                        </span>
+                      </div>
                     </div>
-                    <p className="mt-2 line-clamp-2 text-sm text-white/70">
-                      {item.prompt}
-                    </p>
-                    <div className="mt-3 flex items-center gap-3 text-xs text-white/40">
-                      <span className="inline-flex items-center gap-1">
-                        <Heart className="h-3 w-3" /> {item.likes}
-                      </span>
-                      <span className="inline-flex items-center gap-1">
-                        <Zap className="h-3 w-3" /> re-use prompt
-                      </span>
-                    </div>
-                  </div>
-                </Link>
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </div>
-        </section>
+        </RevealOnScroll>
 
         {/* ---------- Pricing preview ---------- */}
-        <section className="px-6 py-24">
+        <RevealOnScroll as="section" className="px-6 py-24">
           <div className="mx-auto max-w-7xl">
             <div className="text-center">
               <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/40">
@@ -456,9 +441,14 @@ export default function HomePage() {
             </div>
 
             <div className="mt-12 grid gap-5 lg:grid-cols-3">
-              {plans.map((p) => (
-                <div
+              {plans.map((p, i) => (
+                <motion.div
                   key={p.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ y: -4 }}
                   className={
                     "rounded-[8.4px] border bg-black p-7 transition-colors " +
                     (p.featured
@@ -501,7 +491,7 @@ export default function HomePage() {
                       </li>
                     ))}
                   </ul>
-                </div>
+                </motion.div>
               ))}
             </div>
 
@@ -513,10 +503,10 @@ export default function HomePage() {
               .
             </p>
           </div>
-        </section>
+        </RevealOnScroll>
 
         {/* ---------- CTA ---------- */}
-        <section className="border-t border-white/10 px-6 py-20">
+        <RevealOnScroll as="section" className="border-t border-white/10 px-6 py-20">
           <div className="mx-auto max-w-5xl rounded-[8.4px] border border-white/10 bg-gradient-to-b from-[#7c5cff]/[0.10] to-black p-12 text-center">
             <h2 className="text-[48px] font-extrabold leading-[0.9] tracking-[-0.02em] sm:text-[56px]">
               Tạo ảnh đầu tiên
@@ -527,13 +517,13 @@ export default function HomePage() {
               100 credit miễn phí khi đăng ký. Không cần thẻ tín dụng.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                href="/signup"
+              <MagneticButton
+                onClick={() => router.push("/signup")}
                 className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-black transition-opacity hover:opacity-90"
               >
                 Đăng ký miễn phí
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </MagneticButton>
               <Link
                 href="/pricing"
                 className="inline-flex h-12 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-6 text-sm font-medium backdrop-blur-md transition-colors hover:bg-white/[0.08]"
@@ -542,7 +532,7 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-        </section>
+        </RevealOnScroll>
 
         {/* ---------- Footer ---------- */}
         <footer className="border-t border-white/10 px-6 py-12">

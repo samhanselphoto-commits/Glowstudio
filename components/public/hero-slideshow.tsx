@@ -91,7 +91,7 @@ export function HeroSlideshow() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Slides — all rendered, crossfade */}
+      {/* Slides — all rendered, crossfade. Active slide gets Ken Burns zoom. */}
       {SLIDES.map((s, i) => (
         <div
           key={s.src}
@@ -101,14 +101,21 @@ export function HeroSlideshow() {
           )}
           aria-hidden={i !== index}
         >
-          <Image
-            src={s.src}
-            alt={s.alt}
-            fill
-            priority={i === 0}
-            className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-          />
+          <div
+            className={cn(
+              "absolute inset-0",
+              i === index && !paused ? "animate-kenburns" : ""
+            )}
+          >
+            <Image
+              src={s.src}
+              alt={s.alt}
+              fill
+              priority={i === 0}
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
+          </div>
         </div>
       ))}
 
