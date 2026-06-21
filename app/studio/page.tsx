@@ -266,11 +266,7 @@ export default function StudioPage() {
     activeIndex != null ? variations[activeIndex] ?? null : null;
 
   return (
-    <RouteContent className="relative min-h-screen bg-[#000000] text-white">
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute top-[-10%] left-[20%] h-[500px] w-[800px] rounded-full bg-[#7c5cff]/15 blur-[140px]" />
-      </div>
-
+    <RouteContent className="relative min-h-screen bg-[#0a0a0a] text-white">
       <div className="relative">
         {/* ---------- Top bar ---------- */}
         <StickyNav variant="studio" />
@@ -280,7 +276,7 @@ export default function StudioPage() {
           {/* ---- Left: controls ---- */}
           <aside className="space-y-4 lg:col-span-4 xl:col-span-3">
             {/* Prompt textarea */}
-            <div className="rounded-[8.4px] border border-white/10 bg-black p-5">
+            <div className="rounded-[8.4px] border border-white/10 bg-[#0f0f0f] p-5">
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
                   Prompt
@@ -301,12 +297,12 @@ export default function StudioPage() {
                 onChange={(e) => setPrompt(e.target.value)}
                 rows={5}
                 placeholder="Mô tả ảnh bạn muốn tạo…"
-                className="w-full resize-none rounded-md border border-white/10 bg-white/[0.03] p-3 text-sm leading-relaxed text-white placeholder-white/30 outline-none focus:border-[#7c5cff]/60"
+                className="w-full resize-none rounded-md border border-white/10 bg-white/[0.03] p-3 text-sm leading-relaxed text-white placeholder-white/30 outline-none focus:border-white/40"
               />
               <div className="mt-2 flex items-center justify-between text-[11px] text-white/40">
                 <span>{prompt.length} ký tự</span>
                 {styleMeta && (
-                  <span className="rounded-full bg-[#7c5cff]/10 px-2 py-0.5 text-[10px] text-[#c8b8ff]">
+                  <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] text-white/70">
                     + {styleMeta.hint}
                   </span>
                 )}
@@ -314,7 +310,7 @@ export default function StudioPage() {
             </div>
 
             {/* Model picker */}
-            <div className="rounded-[8.4px] border border-white/10 bg-black p-5">
+            <div className="rounded-[8.4px] border border-white/10 bg-[#0f0f0f] p-5">
               <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
                 Model
               </h3>
@@ -356,7 +352,7 @@ export default function StudioPage() {
                           type="button"
                           className={cn(
                             "flex w-full items-start justify-between gap-3 rounded px-2.5 py-2 text-left transition-colors",
-                            m.name === model ? "bg-[#7c5cff]/10" : "hover:bg-white/5"
+                            m.name === model ? "bg-white/[0.08]" : "hover:bg-white/5"
                           )}
                         >
                           <div className="min-w-0">
@@ -370,7 +366,7 @@ export default function StudioPage() {
                           </div>
                           <div className="shrink-0 text-right text-[11px] text-white/60">
                             <div className="flex items-center gap-1">
-                              <Coins className="h-3 w-3 text-[#ffc533]" />
+                              <Coins className="h-3 w-3 text-white/70" />
                               {m.credit}
                             </div>
                           </div>
@@ -383,7 +379,7 @@ export default function StudioPage() {
             </div>
 
             {/* Aspect ratio */}
-            <div className="rounded-[8.4px] border border-white/10 bg-black p-5">
+            <div className="rounded-[8.4px] border border-white/10 bg-[#0f0f0f] p-5">
               <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
                 Aspect
               </h3>
@@ -405,7 +401,7 @@ export default function StudioPage() {
                         <motion.span
                           layoutId="aspect-indicator"
                           transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                          className="absolute inset-0 rounded-md border border-[#7c5cff]/60 bg-[#7c5cff]/10"
+                          className="absolute inset-0 rounded-md border border-white/60 bg-white/[0.08]"
                         />
                       )}
                       <span className="relative">{a}</span>
@@ -416,7 +412,7 @@ export default function StudioPage() {
             </div>
 
             {/* Style ref */}
-            <div className="rounded-[8.4px] border border-white/10 bg-black p-5">
+            <div className="rounded-[8.4px] border border-white/10 bg-[#0f0f0f] p-5">
               <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
                 Style
               </h3>
@@ -432,20 +428,19 @@ export default function StudioPage() {
                       className={cn(
                         "group relative overflow-hidden rounded-md border p-2 text-left transition-colors",
                         selected
-                          ? "border-[#7c5cff]/60 bg-[#7c5cff]/10"
+                          ? "border-white/60 bg-white/[0.08]"
                           : "border-white/10 bg-white/[0.02] hover:border-white/20"
                       )}
                     >
                       <div
-                        className="aspect-square w-full rounded"
-                        style={{ background: `linear-gradient(135deg, ${s.color}, #000)` }}
+                        className="aspect-square w-full rounded bg-gradient-to-br from-white/[0.10] to-white/[0.02]"
                       />
                       <div className="mt-1.5 text-[10px] font-medium text-white/80">{s.name}</div>
                       {selected && (
                         <motion.div
                           layoutId="style-check"
                           transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                          className="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#7c5cff]"
+                          className="absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white"
                         >
                           <Check className="h-2.5 w-2.5 text-white" />
                         </motion.div>
@@ -457,7 +452,7 @@ export default function StudioPage() {
             </div>
 
             {/* Advanced tools */}
-            <div className="rounded-[8.4px] border border-white/10 bg-black p-5">
+            <div className="rounded-[8.4px] border border-white/10 bg-[#0f0f0f] p-5">
               <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
                 Tools
               </h3>
@@ -526,7 +521,7 @@ export default function StudioPage() {
 
           {/* ---- Right: canvas + result ---- */}
           <section className="lg:col-span-8 xl:col-span-9">
-            <div className="rounded-[8.4px] border border-white/10 bg-black p-6">
+            <div className="rounded-[8.4px] border border-white/10 bg-[#0f0f0f] p-6">
               {/* Canvas header */}
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -535,13 +530,13 @@ export default function StudioPage() {
                     {aspect} · {modelMeta.name}
                   </span>
                   {mounted && creditsReady && !enoughCredits && (
-                    <span className="rounded-full border border-[#ff5d4b]/30 bg-[#ff5d4b]/10 px-2.5 py-0.5 text-[10px] text-[#ff9a8a]">
+                    <span className="rounded-full border border-white/15 bg-white/[0.06] px-2.5 py-0.5 text-[10px] text-white/70">
                       Không đủ credit
                     </span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-white/50">
-                  <Coins className="h-3.5 w-3.5 text-[#ffc533]" />
+                  <Coins className="h-3.5 w-3.5 text-white/70" />
                   <span>
                     Tiêu hao <span className="text-white">{totalCost}</span> credit / 4 ảnh
                   </span>

@@ -83,7 +83,7 @@ export function InpaintModal({ open, onOpenChange, imageSrc, onApply }: Props) {
       const first = stroke[0];
       ctx.beginPath();
       ctx.globalCompositeOperation = first.erase ? "destination-out" : "source-over";
-      ctx.strokeStyle = first.erase ? "rgba(255,255,255,1)" : "rgba(124, 92, 255, 0.55)";
+      ctx.strokeStyle = first.erase ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.55)";
       ctx.lineWidth = first.size;
       ctx.moveTo(first.x, first.y);
       for (let i = 1; i < stroke.length; i++) {
@@ -164,7 +164,7 @@ export function InpaintModal({ open, onOpenChange, imageSrc, onApply }: Props) {
               onClick={() => setErase(false)}
               className={cn(
                 "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] transition-colors",
-                !erase ? "bg-[#7c5cff] text-white" : "text-white/60 hover:text-white"
+                !erase ? "bg-white text-black" : "text-white/60 hover:text-white"
               )}
               type="button"
             >
@@ -174,7 +174,7 @@ export function InpaintModal({ open, onOpenChange, imageSrc, onApply }: Props) {
               onClick={() => setErase(true)}
               className={cn(
                 "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] transition-colors",
-                erase ? "bg-[#7c5cff] text-white" : "text-white/60 hover:text-white"
+                erase ? "bg-white text-black" : "text-white/60 hover:text-white"
               )}
               type="button"
             >
@@ -189,7 +189,7 @@ export function InpaintModal({ open, onOpenChange, imageSrc, onApply }: Props) {
               max={80}
               value={brushSize}
               onChange={(e) => setBrushSize(Number(e.target.value))}
-              className="h-1 flex-1 accent-[#7c5cff]"
+              className="h-1 flex-1 accent-white"
             />
             <span className="w-6 text-right text-[10px] text-white/60 tabular-nums">{brushSize}</span>
           </div>

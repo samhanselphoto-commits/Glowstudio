@@ -32,7 +32,7 @@ export function VariationCard({
       onClick={onSelect}
       className={cn(
         "group relative cursor-pointer overflow-hidden rounded-[8.4px] border transition-colors",
-        isActive ? "border-[#7c5cff]" : "border-white/10 hover:border-white/30"
+        isActive ? "border-white" : "border-white/10 hover:border-white/30"
       )}
     >
       <div className="relative w-full" style={{ aspectRatio: aspectToCss(aspect) }}>
@@ -46,7 +46,7 @@ export function VariationCard({
 
         {busy && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-            <Loader2 className="h-8 w-8 animate-spin text-[#7c5cff]" />
+            <Loader2 className="h-8 w-8 animate-spin text-white" />
           </div>
         )}
 
@@ -58,7 +58,7 @@ export function VariationCard({
             }}
             className={cn(
               "flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md transition-colors hover:bg-black/80",
-              variation.liked && "text-[#ff3386]"
+              variation.liked && "text-[#ffd4dc]"
             )}
             aria-label="Thích"
             type="button"

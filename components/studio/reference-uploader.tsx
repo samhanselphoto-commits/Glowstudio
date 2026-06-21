@@ -65,7 +65,7 @@ export function ReferenceUploader({ value, onChange, max = 4 }: Props) {
         }}
         className={cn(
           "flex w-full items-center justify-between rounded-md border border-dashed bg-white/[0.02] px-3 py-2.5 text-sm transition-colors",
-          dragOver ? "border-[#7c5cff]/60 bg-[#7c5cff]/[0.06]" : "border-white/10 text-white/70 hover:border-white/30"
+          dragOver ? "border-white/60 bg-white/[0.08]" : "border-white/10 text-white/70 hover:border-white/30"
         )}
       >
         <span className="flex items-center gap-2">

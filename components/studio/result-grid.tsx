@@ -60,9 +60,9 @@ export function ResultGrid({
   // Initial loading
   if (busy && variations.length === 0) {
     return (
-      <div className="flex aspect-[4/3] items-center justify-center rounded-[8.4px] border border-white/10 bg-gradient-to-br from-[#7c5cff]/10 via-black to-[#d25fff]/10">
+      <div className="flex aspect-[4/3] items-center justify-center rounded-[8.4px] border border-white/10 bg-[#0f0f0f]">
         <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-[#7c5cff]" />
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-white/15 border-t-white" />
           <p className="mt-4 text-sm text-white">
             Đang generate với <span className="font-semibold">{modelName}</span>…
           </p>
@@ -104,7 +104,7 @@ export function ResultGrid({
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-white/10 bg-white/[0.03] p-3">
         <div className="flex flex-wrap items-center gap-3 text-xs text-white/50">
           <span className="inline-flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-[#7c5cff]" />
+            <Sparkles className="h-3.5 w-3.5 text-white/60" />
             Đã generate {totalReceived}/4 variations
           </span>
           <span className="inline-flex items-center gap-1.5">

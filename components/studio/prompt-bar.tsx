@@ -19,7 +19,7 @@ export function PromptBar({ value, onChange, onSubmit, busy }: Props) {
 
   return (
     <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] p-1.5 pl-4">
-      <Wand2 className="h-4 w-4 text-[#7c5cff]" />
+      <Wand2 className="h-4 w-4 text-white/60" />
       <input
         type="text"
         value={value}
