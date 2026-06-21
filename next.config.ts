@@ -1,15 +1,19 @@
 import type { NextConfig } from "next";
 
 const repo = "Glowstudio";
+const isStaticExport = process.env.GITHUB_PAGES === "true";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  // Static export only when explicitly building for GitHub Pages.
+  // Vercel uses the default Node/Edge runtime (SSR + ISR + Image Optimization).
+  output: isStaticExport ? "export" : undefined,
   reactStrictMode: true,
-  // GitHub Pages: serve from /<repo>; Vercel: serve from /
-  basePath: process.env.GITHUB_PAGES ? `/${repo}` : undefined,
+  // GitHub Pages serves from /<repo>; Vercel serves from /.
+  basePath: isStaticExport ? `/${repo}` : undefined,
+  assetPrefix: isStaticExport ? `/${repo}` : undefined,
   images: {
-    // Static export: Next image optimization is disabled; use plain <img> via unoptimized
-    unoptimized: true,
+    // Static export cannot use Next/Image optimization; Vercel can.
+    unoptimized: isStaticExport,
   },
   trailingSlash: true,
 };
