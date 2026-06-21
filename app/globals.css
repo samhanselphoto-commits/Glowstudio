@@ -128,3 +128,27 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- Page reveal: fade-up khi route đổi (kết hợp với PageTransitionProvider) ---------- */
+/*
+ * Khi pathname thay đổi, Next.js App Router stream page mới vào cùng <main>.
+ * Ta dùng key={pathname} trên <main> của từng page để React re-mount nội dung,
+ * trigger animation này. Nếu page không re-mount (ví dụ SSR static), animation
+ * vẫn chạy 1 lần đầu.
+ */
+@keyframes pageRevealUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+main[data-route-content] {
+  animation: pageRevealUp 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 220ms; /* chờ circle overlay bắt đầu co lại */
+  will-change: opacity, transform;
+}

@@ -26,6 +26,7 @@ import { RevealOnScroll } from "@/components/ui/reveal-on-scroll";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { TransitionMagneticButton } from "@/components/ui/transition-magnetic-button";
 import { TransitionLink } from "@/components/ui/transition-button";
+import { RouteContent } from "@/components/ui/route-content";
 import { useMounted } from "@/hooks/use-mounted";
 
 /* ---------- Data ---------- */
@@ -172,7 +173,7 @@ export default function HomePage() {
   const router = useRouter();
 
   return (
-    <div className="relative min-h-screen bg-[#000000] text-white">
+    <RouteContent className="relative min-h-screen bg-[#000000] text-white">
       {/* Aurora ambient glow */}
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute -top-40 left-1/2 h-[600px] w-[1100px] -translate-x-1/2 rounded-full bg-[#7c5cff]/20 blur-[140px] animate-aurora-drift-slow" />
@@ -566,6 +567,6 @@ export default function HomePage() {
           </div>
         </footer>
       </div>
-    </div>
+    </RouteContent>
   );
 }

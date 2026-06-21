@@ -24,6 +24,7 @@ import { ResultGrid } from "@/components/studio/result-grid";
 import { RecentGenerations } from "@/components/studio/recent-generations";
 import { InpaintModal } from "@/components/studio/inpaint-modal";
 import { StickyNav } from "@/components/public/sticky-nav";
+import { RouteContent } from "@/components/ui/route-content";
 import { AnimatePresence, motion } from "motion/react";
 
 import { useCredits } from "@/hooks/use-credits";
@@ -265,7 +266,7 @@ export default function StudioPage() {
     activeIndex != null ? variations[activeIndex] ?? null : null;
 
   return (
-    <div className="relative min-h-screen bg-[#000000] text-white">
+    <RouteContent className="relative min-h-screen bg-[#000000] text-white">
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute top-[-10%] left-[20%] h-[500px] w-[800px] rounded-full bg-[#7c5cff]/15 blur-[140px]" />
       </div>
@@ -276,13 +277,8 @@ export default function StudioPage() {
 
         {/* ---------- Studio layout ---------- */}
         <div className="mx-auto grid max-w-[1600px] gap-6 px-6 py-6 lg:grid-cols-12">
-          {/* ---- Left: controls — slide-in from left after transition ---- */}
-          <motion.aside
-            initial={{ opacity: 0, x: -24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            className="space-y-4 lg:col-span-4 xl:col-span-3"
-          >
+          {/* ---- Left: controls ---- */}
+          <aside className="space-y-4 lg:col-span-4 xl:col-span-3">
             {/* Prompt textarea */}
             <div className="rounded-[8.4px] border border-white/10 bg-black p-5">
               <div className="mb-3 flex items-center justify-between">
@@ -526,15 +522,10 @@ export default function StudioPage() {
                 </AnimatePresence>
               </div>
             </div>
-          </motion.aside>
+          </aside>
 
-          {/* ---- Right: canvas + result — slide-in from right after transition ---- */}
-          <motion.section
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="lg:col-span-8 xl:col-span-9"
-          >
+          {/* ---- Right: canvas + result ---- */}
+          <section className="lg:col-span-8 xl:col-span-9">
             <div className="rounded-[8.4px] border border-white/10 bg-black p-6">
               {/* Canvas header */}
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -592,7 +583,7 @@ export default function StudioPage() {
             </div>
 
             <RecentGenerations />
-          </motion.section>
+          </section>
         </div>
       </div>
 
@@ -605,6 +596,6 @@ export default function StudioPage() {
           onApply={handleInpaintApply}
         />
       )}
-    </div>
+    </RouteContent>
   );
 }
