@@ -24,6 +24,8 @@ import { StickyNav } from "@/components/public/sticky-nav";
 import { HeroSlideshow } from "@/components/public/hero-slideshow";
 import { RevealOnScroll } from "@/components/ui/reveal-on-scroll";
 import { MagneticButton } from "@/components/ui/magnetic-button";
+import { TransitionMagneticButton } from "@/components/ui/transition-magnetic-button";
+import { TransitionLink } from "@/components/ui/transition-button";
 import { useMounted } from "@/hooks/use-mounted";
 
 /* ---------- Data ---------- */
@@ -216,16 +218,16 @@ export default function HomePage() {
                 className="mt-8 flex flex-wrap items-center gap-3"
                 style={mounted ? { animation: `fadeUp 700ms cubic-bezier(0.22, 1, 0.36, 1) ${HERO_FADE_UP_DELAYS[3]}ms both` } : undefined}
               >
-                {/* Magnetic CTA primary — pulses */}
+                {/* Magnetic CTA primary — pulses, morphs into route transition */}
                 <div className="relative">
                   <span className="pointer-events-none absolute -inset-1 rounded-full bg-[#7c5cff] opacity-50 blur-md animate-cta-pulse" />
-                  <MagneticButton
-                    onClick={() => router.push("/studio")}
+                  <TransitionMagneticButton
+                    href="/studio"
                     className="relative inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-black shadow-[0_0_40px_rgba(255,255,255,0.15)] transition-opacity hover:opacity-90"
                   >
                     Mở Studio
                     <ArrowRight className="h-4 w-4" />
-                  </MagneticButton>
+                  </TransitionMagneticButton>
                 </div>
                 <Link
                   href="/community"

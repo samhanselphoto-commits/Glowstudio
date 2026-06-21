@@ -8,6 +8,7 @@ import { Sparkles, Bell } from "lucide-react";
 import { CreditChip } from "@/components/ui/credit-chip";
 import { AdminLink } from "@/components/public/admin-link";
 import { MagneticButton } from "@/components/ui/magnetic-button";
+import { TransitionLink } from "@/components/ui/transition-button";
 import { cn } from "@/lib/cn";
 
 const navItems = [
@@ -69,7 +70,7 @@ export function StickyNav({ variant = "home" }: Props) {
                 ? pathname === "/"
                 : pathname === n.href || pathname.startsWith(n.href + "/");
             return (
-              <Link
+              <TransitionLink
                 key={n.label}
                 href={n.href}
                 className={cn(
@@ -80,7 +81,7 @@ export function StickyNav({ variant = "home" }: Props) {
                 )}
               >
                 {n.label}
-              </Link>
+              </TransitionLink>
             );
           })}
         </nav>
